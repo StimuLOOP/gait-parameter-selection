@@ -12,7 +12,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'healthy'; 
+type = 'patient'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -26,7 +26,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = 1%3:7  %[1 3:7]
+for subject = 3%[1 3:8]
     % Load data
     if strcmp(type,'healthy')
         if subject < 10
@@ -56,8 +56,9 @@ for subject = 1%3:7  %[1 3:7]
     X = [1 0 0];
     Y = [0 1 0];
     Z = [0 0 1];
+    freq = FRAME_RATE{1};
 
-    for speedN = 8%1:sizeSpeed
+    for speedN = 1:sizeSpeed
         if strcmp(type,'healthy')
             filec3d = [folder, day{subject},'_',subjectN,'_TM_',speeds{speedN},'_NH_NS',suffixe{subject}];
         elseif strcmp(type,'patient')
@@ -73,6 +74,18 @@ for subject = 1%3:7  %[1 3:7]
             markers = renameMarkers(markers);
         end
 
+         % correct scale for S01
+        if (strcmp(subject,'190913_S01') && strcmp(speed,'PGV0.1'))
+            mult = @(x)(x*1000);
+            markers = structfun(mult,markers,'UniformOutput',false);
+        end
+        % Rename markers if names not conform to the ones used here
+        try
+            lpsi = markers.LPSI;
+        catch
+            markers = renameMarkers(markers);
+        end
+        
         nbSamples = size(markers.LASI,1);
 
         % Trunk motions (not available for stroke patients)
@@ -92,6 +105,8 @@ for subject = 1%3:7  %[1 3:7]
 
             % Compute Euler angles between the lab and the trunk frames
             eulerT{speedN,1}(i,:) = rotm2eul(R);
+        else
+            eulerT{speedN,1} = [];
         end
 
         % Arm swing
@@ -99,31 +114,45 @@ for subject = 1%3:7  %[1 3:7]
         LArmSw{speedN} = ((markers.LRSP + markers.LUSP)./2) - centerPoint;
         RArmSw{speedN} = ((markers.RRSP + markers.RUSP)./2) - centerPoint;
     
-        %% Correct foot progression angles --> still on process. 
-        correctLFP = LFootProg{speedN}(:,2);
-        % interpolation of the NaN space
+        %% Correct foot progression angles 
+        % there are random sign changes -> take the absolute value + there
+        % is 90 deg due to the Euler rotation of the virtual foot frame w/r
+        % to the lab frame
+        correctRFP = abs(RFootProg{speedN}(:,2))-90;
+        indexNan = find(isnan(correctRFP));
+        % interpolate missing data
+        sampleQ = 1:size(correctRFP);
+        sampleP = sampleQ; sampleP(indexNan) = [];
+        correctRFP_interp = correctRFP;
+        correctRFP_interp(indexNan) = [];
+        correctRFP = (interp1(sampleP, correctRFP_interp,sampleQ))';
+
+        % Filter FPA
+        fc = 10;
+        fs = freq;
+        [b,a] = butter(2,fc/(fs/2));
+        correctRFP_filter = filter(b,a,correctRFP,[],1);
+        correctRFP_filter(1:10,:) = correctRFP(1:10); % remove the peak at the beginning due to the filtering
+        RFPA{speedN,1} = correctRFP_filter;
+%         figure;plot(correctRFP_filter)
+
+        correctLFP = abs(LFootProg{speedN}(:,2))-90;
         indexNan = find(isnan(correctLFP));
-        if find(diff(indexNan)
-        a = find(diff(indexNan)==1);
-        indexNan = [indexNan; size(correctLFP,1)];
-        for j = 1:2:length(indexNan)-1
-            if ismember(j,a) % consecutive NaNs
-                
-            else
-            if abs(correctLFP(indexNan(j)+1,:) - correctLFP(indexNan(j)-1,:)) > 50 
-                correctLFP(indexNan(j)+1:indexNan(j+1),:) = - correctLFP(indexNan(j)+1:indexNan(j+1),:);
-            end
-            end
-        end
-        % correction sign
-        indexJump = find(abs(diff(LFootProg{speedN}(:,2)))>100);
-        for j=1:2:length(indexJump)-1
-            if correctLFP(indexJump(j)+1) + correctLFP(indexJump(j)) < 1
-            %change = LFootProg{speedN}(indexJump(j)+1,3) - correctLFP(indexJump(j),:);
-            correctLFP(indexJump(j)+1:indexJump(j+1)) = -LFootProg{speedN}(indexJump(j)+1:indexJump(j+1),2);   
-            end
-        end
-        
+        % interpolate missing data
+        sampleQ = 1:size(correctLFP);
+        sampleP = sampleQ; sampleP(indexNan) = [];
+        correctLFP_interp = correctLFP;
+        correctLFP_interp(indexNan) = [];
+        correctLFP = (interp1(sampleP, correctLFP_interp,sampleQ))';
+
+        % Filter FPA
+        fc = 10;
+        fs = freq;
+        [b,a] = butter(2,fc/(fs/2));
+        correctLFP_filter = filter(b,a,correctLFP,[],1);
+        correctLFP_filter(1:10,:) = correctLFP(1:10); % remove the peak at the beginning due to the filtering
+%         figure;plot(correctLFP_filter)
+        LFPA{speedN,1} = correctLFP_filter;
 
         %% Segment kinetic and kinematic parameters with gait events + time normalization + max and mean
         for e = 1:min(size(events{speedN}.LStrike,2),size(events{speedN}.RStrike,2))-1
@@ -140,6 +169,9 @@ for subject = 1%3:7  %[1 3:7]
             
             kinSeg{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
+
+            kinSeg{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
+            kinSeg{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
             
                 % Sample rate of force plates = 600Hz-> rescaling required
             ff = 600; % forceplate frequency
@@ -155,57 +187,61 @@ for subject = 1%3:7  %[1 3:7]
             % Time normalization
             % Right ankle
             sizeVar = size(kinSeg{speedN}.RAnkle{e}(:,1),1);
-            kinNorm{speedN,1}.RAnkleX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RAnkle{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RAnkleY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RAnkle{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RAnkleZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RAnkle{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RAnkleX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RAnkle{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RAnkleY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RAnkle{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RAnkleZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RAnkle{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right hip
-            kinNorm{speedN,1}.RHipX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RHip{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RHipY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RHip{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RHipZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RHip{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RHipX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RHip{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RHipY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RHip{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RHipZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RHip{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right knee
-            kinNorm{speedN,1}.RKneeX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RKnee{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RKnee{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN,1}.RKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RKnee{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RKneeX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RKnee{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RKnee{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RKnee{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right arm swing
-            kinNorm{speedN}.RArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.RArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.RArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.RArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            % Right foot progression angle
+            kinNorm{speedN,1}.RFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on right cycles
-            kinNorm{speedN}.ReulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.ReulerT{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.ReulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.ReulerT{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.ReulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.ReulerT{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.ReulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.ReulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.ReulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right forceplate
-            sizeForce = size(kinSeg{speedN}.R_FP{e}(:,1),1);
-            kinNorm{speedN}.R_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.R_FP{e}(:,1),linspace(1, sizeForce, 101)))';
-            kinNorm{speedN}.R_FPY(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.R_FP{e}(:,2),linspace(1, sizeForce, 101)))';
-            kinNorm{speedN}.R_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.R_FP{e}(:,3),linspace(1, sizeForce, 101)))';
+            sizeForce = size(kinSeg{speedN,1}.R_FP{e}(:,1),1);
+            kinNorm{speedN,1}.R_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.R_FP{e}(:,1),linspace(1, sizeForce, 101)))';
+            kinNorm{speedN,1}.R_FPY(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.R_FP{e}(:,2),linspace(1, sizeForce, 101)))';
+            kinNorm{speedN,1}.R_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.R_FP{e}(:,3),linspace(1, sizeForce, 101)))';
             
             % Left ankle
-            sizeVar = size(kinSeg{speedN}.LAnkle{e}(:,1),1);
-            kinNorm{speedN}.LAnkleX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LAnkle{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LAnkleY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LAnkle{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LAnkleZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LAnkle{e}(:,3),linspace(1, sizeVar, 101)))';
+            sizeVar = size(kinSeg{speedN,1}.LAnkle{e}(:,1),1);
+            kinNorm{speedN,1}.LAnkleX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LAnkle{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LAnkleY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LAnkle{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LAnkleZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LAnkle{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left hip
-            kinNorm{speedN}.LHipX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LHip{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LHipY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LHip{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LHipZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LHip{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LHipX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LHip{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LHipY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LHip{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LHipZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LHip{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left knee
-            kinNorm{speedN}.LKneeX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LKnee{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LKnee{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LKnee{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LKneeX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LKnee{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LKnee{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LKnee{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left arm swing
-            kinNorm{speedN}.LArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            % Left foot progression angle
+            kinNorm{speedN,1}.LFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on left cycles
-            kinNorm{speedN}.LeulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LeulerT{e}(:,1),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LeulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LeulerT{e}(:,2),linspace(1, sizeVar, 101)))';
-            kinNorm{speedN}.LeulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN}.LeulerT{e}(:,3),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LeulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LeulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,2),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LeulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left forceplate
-            sizeForce = size(kinSeg{speedN}.L_FP{e}(:,1),1);
-            kinNorm{speedN}.L_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.L_FP{e}(:,1),linspace(1, sizeForce, 101)))';
-            kinNorm{speedN}.L_FPY(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.L_FP{e}(:,2),linspace(1, sizeForce, 101)))';
-            kinNorm{speedN}.L_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN}.L_FP{e}(:,3),linspace(1, sizeForce, 101)))';
+            sizeForce = size(kinSeg{speedN,1}.L_FP{e}(:,1),1);
+            kinNorm{speedN,1}.L_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,1),linspace(1, sizeForce, 101)))';
+            kinNorm{speedN,1}.L_FPY(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,2),linspace(1, sizeForce, 101)))';
+            kinNorm{speedN,1}.L_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,3),linspace(1, sizeForce, 101)))';
             
             % Compute extrema
             stat{speedN,1}.maxRAnkle(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
@@ -380,8 +416,8 @@ for subject = 1%3:7  %[1 3:7]
                         varRStanceTime varRStepLength varRStepTime varRStrideLength varRSwingTime];
         RightSTempN = {'RStanceTime', 'RStepLength', 'RStepTime', 'RStrideLength', 'RSwingTime'};
 
-        RKinTable{speedN} = array2table(RightKinM,'RowNames',namesRow,'VariableNames',RightKinN);
-        RSTTable{speedN} = array2table(RightSTempM,'RowNames',namesRow,'VariableNames',RightSTempN);
+        RKinTable{subject,speedN} = array2table(RightKinM,'RowNames',namesRow,'VariableNames',RightKinN);
+        RSTTable{subject,speedN} = array2table(RightSTempM,'RowNames',namesRow,'VariableNames',RightSTempN);
 
         % Left side
         LeftKinM = [meanMaxLAnkle meanMinLAnkle meanMaxLHip meanMinLHip meanMaxLKnee meanMinLKnee meanMaxLArmSw meanMinLArmSw meanMaxLeulerT meanMinLeulerT meanMaxL_FP meanMinL_FP;...
@@ -399,8 +435,8 @@ for subject = 1%3:7  %[1 3:7]
                         varLStanceTime varLStepLength varLStepTime varLStrideLength varLSwingTime];
         LeftSTempN = {'LStanceTime', 'LStepLength', 'LStepTime', 'LStrideLength', 'LSwingTime'};
 
-        LKinTable{speedN} = array2table(LeftKinM,'RowNames',namesRow,'VariableNames',LeftKinN);
-        LSTTable{speedN} = array2table(LeftSTempM,'RowNames',namesRow,'VariableNames',LeftSTempN);
+        LKinTable{subject,speedN} = array2table(LeftKinM,'RowNames',namesRow,'VariableNames',LeftKinN);
+        LSTTable{subject,speedN} = array2table(LeftSTempM,'RowNames',namesRow,'VariableNames',LeftSTempN);
         
         % Global
         globalM = [CycleTimeMean{speedN} StrideLengthMean{speedN} StrideWidthMean{speedN} DSupportMean{speedN};...
@@ -408,7 +444,17 @@ for subject = 1%3:7  %[1 3:7]
                 varCycleTime varStrideLength varStrideWidth varDSupport];
         globalN ={'CycleTime', 'StrideLength', 'StrideWidth', 'DSupport'};
 
-        globalSTTable{speedN} = array2table(globalM,'RowNames',namesRow,'VariableNames',globalN);
+        globalSTTable{subject,speedN} = array2table(globalM,'RowNames',namesRow,'VariableNames',globalN);
 
+        close all
     end
+    % save individual data
+    save(fileMatlab,'kinSeg','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','stat');
+end
+
+% Save file with data from all subjects (1 file healthy, 1 file stroke)
+if strcmp(type,'healthy')
+    save('D:\StimuLOOP\DataGait\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
+elseif strcmp (type,'patient')
+    save('D:\StimuLOOP\DataGait\statPatient.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
 end
