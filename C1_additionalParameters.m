@@ -156,7 +156,7 @@ for subject = 3%[1 3:8]
 
         %% Segment kinetic and kinematic parameters with gait events + time normalization + max and mean
         for e = 1:min(size(events{speedN}.LStrike,2),size(events{speedN}.RStrike,2))-1
-            % Segmentation
+            % Segmentation - Step level
             kinSeg{speedN,1}.RAnkle{e,1} = RAnkle{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.RHip{e,1} = RHip{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.RKnee{e,1} = RKnee{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
@@ -182,6 +182,84 @@ for subject = 3%[1 3:8]
             if strcmp(type,'healthy')
                 kinSeg{speedN,1}.ReulerT{e,1} = eulerT{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
                 kinSeg{speedN,1}.LeulerT{e,1} = eulerT{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
+            end
+
+             % Segmentation - Stance phase
+             % Adapt the index of the off event, depending on which event
+             % is detected first
+             if events{speedN}.RStrike(e) < events{speedN}.ROff(e)
+                 indexROff = e;
+             else
+                 indexROff = e+1;
+             end
+             if events{speedN}.LStrike(e) < events{speedN}.LOff(e)
+                 indexLOff = e;
+             else
+                 indexLOff = e+1;
+             end
+            kinStance{speedN,1}.RAnkle{e,1} = RAnkle{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.RHip{e,1} = RHip{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.RKnee{e,1} = RKnee{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.RKnee{e,1}(:,1) = - kinStance{speedN,1}.RKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
+
+            kinStance{speedN,1}.LAnkle{e,1} = LAnkle{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            kinStance{speedN,1}.LHip{e,1} = LHip{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            kinStance{speedN,1}.LKnee{e,1} = LKnee{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            kinStance{speedN,1}.LKnee{e,1}(:,1) = - kinStance{speedN,1}.LKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
+            
+            kinStance{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+
+            kinStance{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            
+            ff = 600; % forceplate frequency
+            fmc = 100; % motion capture frequency
+            kinStance{speedN,1}.R_FP{e,1} = FP1{speedN}(events{speedN}.RStrike(e)*ff/fmc:events{speedN}.ROff(indexROff)*ff/fmc,:);
+            kinStance{speedN,1}.L_FP{e,1} = FP2{speedN}(events{speedN}.LStrike(e)*ff/fmc:events{speedN}.LOff(indexLOff)*ff/fmc,:);
+
+            if strcmp(type,'healthy')
+                kinStance{speedN,1}.ReulerT{e,1} = eulerT{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+                kinStance{speedN,1}.LeulerT{e,1} = eulerT{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            end
+
+            % Segmentation - Swing phase
+             % Adapt the index of the off event, depending on which event
+             % is detected first
+             if events{speedN}.ROff(e) < events{speedN}.Rstrike(e)
+                 indexRStrike = e;
+             else
+                 indexRStrike = e+1;
+             end
+             if events{speedN}.LOff(e) < events{speedN}.LStrike(e)
+                 indexLStrike = e;
+             else
+                 indexLStrike = e+1;
+             end
+            kinSwing{speedN,1}.RAnkle{e,1} = RAnkle{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.RHip{e,1} = RHip{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.RKnee{e,1} = RKnee{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.RKnee{e,1}(:,1) = - kinSwing{speedN,1}.RKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
+
+            kinSwing{speedN,1}.LAnkle{e,1} = LAnkle{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            kinSwing{speedN,1}.LHip{e,1} = LHip{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            kinSwing{speedN,1}.LKnee{e,1} = LKnee{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            kinSwing{speedN,1}.LKnee{e,1}(:,1) = - kinSwing{speedN,1}.LKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
+            
+            kinSwing{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+
+            kinSwing{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            
+            ff = 600; % forceplate frequency
+            fmc = 100; % motion capture frequency
+            kinSwing{speedN,1}.R_FP{e,1} = FP1{speedN}(events{speedN}.ROff(e)*ff/fmc:events{speedN}.RStrike(indexRStrike)*ff/fmc,:);
+            kinSwing{speedN,1}.L_FP{e,1} = FP2{speedN}(events{speedN}.LOff(e)*ff/fmc:events{speedN}.LStrike(indexLStrike)*ff/fmc,:);
+
+            if strcmp(type,'healthy')
+                kinSwing{speedN,1}.ReulerT{e,1} = eulerT{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+                kinSwing{speedN,1}.LeulerT{e,1} = eulerT{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
             end
 
             % Time normalization
