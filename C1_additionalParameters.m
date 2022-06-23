@@ -297,89 +297,89 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.L_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,3),linspace(1, sizeForce, 101)))';
             
             % Compute extrema
-            stat{speedN,1}.maxRAnkle(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.minRAnkle(e,:) = min(kinSeg{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.maxRAnkleSw(e,:) = max(kinSwing{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.minRAnkleSw(e,:) = min(kinSwing{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.maxRAnkleSt(e,:) = max(kinStance{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.minRAnkleSt(e,:) = min(kinStance{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleMax(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleMin(e,:) = min(kinSeg{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleSwMax(e,:) = max(kinSwing{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleSwMin(e,:) = min(kinSwing{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleStMax(e,:) = max(kinStance{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleStMin(e,:) = min(kinStance{speedN,1}.RAnkle{e,1});
 
-            stat{speedN,1}.maxRHip(e,:) = max(kinSeg{speedN,1}.RHip{e,1});
-            stat{speedN,1}.minRHip(e,:) = min(kinSeg{speedN,1}.RHip{e,1});
-            stat{speedN,1}.maxRHipSw(e,:) = max(kinSwing{speedN,1}.RHip{e,1});
-            stat{speedN,1}.minRHipSw(e,:) = min(kinSwing{speedN,1}.RHip{e,1});
-            stat{speedN,1}.maxRHipSt(e,:) = max(kinStance{speedN,1}.RHip{e,1});
-            stat{speedN,1}.minRHipSt(e,:) = min(kinStance{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipMax(e,:) = max(kinSeg{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipMin(e,:) = min(kinSeg{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipSwMax(e,:) = max(kinSwing{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipSwMin(e,:) = min(kinSwing{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipStMax(e,:) = max(kinStance{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipStMin(e,:) = min(kinStance{speedN,1}.RHip{e,1});
 
-            stat{speedN,1}.maxRKnee(e,:) = max(kinSeg{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.minRKnee(e,:) = min(kinSeg{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.maxRKneeSw(e,:) = max(kinSwing{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.minRKneeSw(e,:) = min(kinSwing{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.maxRKneeSt(e,:) = max(kinStance{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.minRKneeSt(e,:) = min(kinStance{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeMax(e,:) = max(kinSeg{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeMin(e,:) = min(kinSeg{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeSwMax(e,:) = max(kinSwing{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeSwMin(e,:) = min(kinSwing{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeStMax(e,:) = max(kinStance{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeStMin(e,:) = min(kinStance{speedN,1}.RKnee{e,1});
 
-            stat{speedN,1}.maxRArmSw(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.minRArmSw(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.maxRArmSwSw(e,:) = max(kinSwing{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.minRArmSwSw(e,:) = min(kinSwing{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.maxRArmSwSt(e,:) = max(kinStance{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.minRArmSwSt(e,:) = min(kinStance{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwMax(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwMin(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwSwMax(e,:) = max(kinSwing{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwSwMin(e,:) = min(kinSwing{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwStMax(e,:) = max(kinStance{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwStMin(e,:) = min(kinStance{speedN,1}.RArmSw{e,1});
 
-            stat{speedN,1}.maxReulerT(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.minReulerT(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.maxReulerTSw(e,:) = max(kinSwing{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.minReulerTSw(e,:) = min(kinSwing{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.maxReulerTSt(e,:) = max(kinStance{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.minReulerTSt(e,:) = min(kinStance{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTMax(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTMin(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTSwMax(e,:) = max(kinSwing{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTSwMin(e,:) = min(kinSwing{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTStMax(e,:) = max(kinStance{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTStMin(e,:) = min(kinStance{speedN,1}.ReulerT{e,1});
 
-            stat{speedN,1}.maxR_FP(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.minR_FP(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.maxR_FPSw(e,:) = max(kinSwing{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.minR_FPSw(e,:) = min(kinSwing{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.maxR_FPSt(e,:) = max(kinStance{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.minR_FPSt(e,:) = min(kinStance{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPMax(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPMin(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPSwMax(e,:) = max(kinSwing{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPSwMin(e,:) = min(kinSwing{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPStMax(e,:) = max(kinStance{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPStMin(e,:) = min(kinStance{speedN,1}.R_FP{e,1});
 
-            stat{speedN,1}.maxLAnkle(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.minLAnkle(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.maxLAnkleSw(e,:) = max(kinSwing{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.minLAnkleSw(e,:) = min(kinSwing{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.maxLAnkleSt(e,:) = max(kinStance{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.minLAnkleSt(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleMax(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleMin(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleSwMax(e,:) = max(kinSwing{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleSwMin(e,:) = min(kinSwing{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleStMax(e,:) = max(kinStance{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleStMin(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
 
-            stat{speedN,1}.maxLHip(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
-            stat{speedN,1}.minLHip(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
-             stat{speedN,1}.maxLHipSw(e,:) = max(kinSwing{speedN,1}.LHip{e,1});
-            stat{speedN,1}.minLHipSw(e,:) = min(kinSwing{speedN,1}.LHip{e,1});
-             stat{speedN,1}.maxLHiStp(e,:) = max(kinStance{speedN,1}.LHip{e,1});
-            stat{speedN,1}.minLHipSt(e,:) = min(kinStance{speedN,1}.LHip{e,1});
+            stat{speedN,1}.LHipMax(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
+            stat{speedN,1}.LHipMin(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
+             stat{speedN,1}.LHipSwMax(e,:) = max(kinSwing{speedN,1}.LHip{e,1});
+            stat{speedN,1}.LHipSwMin(e,:) = min(kinSwing{speedN,1}.LHip{e,1});
+             stat{speedN,1}.LHipStMax(e,:) = max(kinStance{speedN,1}.LHip{e,1});
+            stat{speedN,1}.LHipStMin(e,:) = min(kinStance{speedN,1}.LHip{e,1});
 
-            stat{speedN,1}.maxLKnee(e,:) = max(kinSeg{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.minLKnee(e,:) = min(kinSeg{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.maxLKneeSw(e,:) = max(kinSwing{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.minLKneeSw(e,:) = min(kinSwing{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.maxLKneeSt(e,:) = max(kinStance{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.minLKneeSt(e,:) = min(kinStance{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeMax(e,:) = max(kinSeg{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeMin(e,:) = min(kinSeg{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeSwMax(e,:) = max(kinSwing{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeSwMin(e,:) = min(kinSwing{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeStMax(e,:) = max(kinStance{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeStMin(e,:) = min(kinStance{speedN,1}.LKnee{e,1});
 
-            stat{speedN,1}.maxLArmSw(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.minLArmSw(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.maxLArmSwSw(e,:) = max(kinSwing{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.minLArmSwSw(e,:) = min(kinSwing{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.maxLArmSwSt(e,:) = max(kinStance{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.minLArmSwSt(e,:) = min(kinStance{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwMax(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwMin(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwSwMax(e,:) = max(kinSwing{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwSwMin(e,:) = min(kinSwing{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwStMax(e,:) = max(kinStance{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwStMin(e,:) = min(kinStance{speedN,1}.LArmSw{e,1});
 
-            stat{speedN,1}.maxLeulerT(e,:) = max(kinSeg{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.minLeulerT(e,:) = min(kinSeg{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.maxLeulerTSw(e,:) = max(kinSwing{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.minLeulerTSw(e,:) = min(kinSwing{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.maxLeulerTSt(e,:) = max(kinStance{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.minLeulerTSt(e,:) = min(kinStance{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTMax(e,:) = max(kinSeg{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTMin(e,:) = min(kinSeg{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTSwMax(e,:) = max(kinSwing{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTSwMin(e,:) = min(kinSwing{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTStMax(e,:) = max(kinStance{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTStMin(e,:) = min(kinStance{speedN,1}.LeulerT{e,1});
 
-            stat{speedN,1}.maxL_FP(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.minL_FP(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.maxL_FPSw(e,:) = max(kinSwing{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.minL_FPSw(e,:) = min(kinSwing{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.maxL_FPSt(e,:) = max(kinStance{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.minL_FPSt(e,:) = min(kinStance{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPMax(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPMin(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPSwMax(e,:) = max(kinSwing{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPSwMin(e,:) = min(kinSwing{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPStMax(e,:) = max(kinStance{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPStMin(e,:) = min(kinStance{speedN,1}.L_FP{e,1});
         
         end
 
@@ -412,48 +412,58 @@ for subject = [1 3:7]%[1 3:8]
         
         %% Save in tables
         namesRow = {'Mean','Std','Coeff var'};
-        % Right side
-        RightKinM = [meanMaxRAnkle meanMinRAnkle meanMaxRHip meanMinRHip meanMaxRKnee meanMinRKnee meanMaxRArmSw meanMinRArmSw meanMaxReulerT meanMinReulerT meanMaxR_FP meanMinR_FP;...
-                        stdMaxRAnkle stdMinRAnkle stdMaxRHip stdMinRHip stdMaxRKnee stdMinRKnee stdMaxRArmSw stdMinRArmSw stdMaxReulerT stdMinReulerT stdMaxR_FP stdMinR_FP;...
-                        varMaxRAnkle varMinRAnkle varMaxRHip varMinRHip varMaxRKnee varMinRKnee varMaxRArmSw varMinRArmSw varMaxReulerT varMinReulerT varMaxR_FP varMinR_FP];
-        RightKinN = {'MaxRAnkle X', 'MaxRAnkle Y', 'MaxRAnkle Z','MinRAnkle X', 'MinRAnkle Y', 'MinRAnkle Z', ...
-                'MaxRHip X', 'MaxRHip Y', 'MaxRHip Z', 'MinRHip X', 'MinRHip Y', 'MinRHip Z', ...
-                'MaxRKnee X', 'MaxRKnee Y', 'MaxRKnee Z', 'MinRKNee X', 'MinRKNee Y', 'MinRKNee Z',...
-                'MaxRArmSw X', 'MaxRArmSw Y', 'MaxRArmSw Z', 'MinRArmSw X', 'MinRArmSw Y', 'MinRArmSw Z', ...
-                'MaxReulerT X', 'MaxReulerT Y', 'MaxReulerT Z', 'MinReulerT X', 'MinReulerT Y','MinReulerT Z',...
-                'MaxR_FP X', 'MaxR_FP Y', 'MaxR_FP Z', 'MinR_FP X', 'MinR_FP Y','MinR_FP Z'};
-        
-        RightSTempM = [RStanceTimeMean{speedN} RStepLengthMean{speedN} RStepTimeMean{speedN} RStrideLengthMean{speedN} RSwingTimeMean{speedN};...
-                        RStanceTimeStd{speedN} RStepLengthStd{speedN} RStepTimeStd{speedN} RStrideLengthStd{speedN} RSwingTimeStd{speedN};...
-                        varRStanceTime varRStepLength varRStepTime varRStrideLength varRSwingTime];
-        RightSTempN = {'RStanceTime', 'RStepLength', 'RStepTime', 'RStrideLength', 'RSwingTime'};
+
+        % Kinetics/kinematics
+        RightKinM = [];
+        LeftKinM = [];
+        counterR = 1;
+        counterL = 1;
+        for k = 1:size(fields,1)
+            dim = size(stdAllKin{speedN}.(fields{k}),2);
+            if fields{k}(1) == 'R' % Right side
+                RightKinM = [RightKinM [meanAllKin{speedN}.(fields{k}); stdAllKin{speedN}.(fields{k}); varAllKin{speedN}.(fields{k})]];
+                if dim == 1
+                    RightKinN{counterR} = fields{k};
+                elseif dim == 3
+                    RightKinN(1,counterR:counterR+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
+                end
+                counterR = counterR + dim;
+            elseif fields{k}(1) == 'L' % Left side
+                LeftKinM = [LeftKinM [meanAllKin{speedN}.(fields{k}); stdAllKin{speedN}.(fields{k}); varAllKin{speedN}.(fields{k})]];
+                if dim == 1
+                    LeftKinN{counterL} = fields{k};
+                elseif dim == 3
+                    LeftKinN(1,counterL:counterL+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
+                end
+                counterL = counterL + dim;
+            end
+        end
 
         RKinTable{subject,speedN} = array2table(RightKinM,'RowNames',namesRow,'VariableNames',RightKinN);
+        LKinTable{subject,speedN} = array2table(LeftKinM,'RowNames',namesRow,'VariableNames',LeftKinN);
+        
+        % Spatio Temporal
+        % Right
+        RightSTempM = [RStanceTimeMean{speedN} RStepLengthMean{speedN} RStepTimeMean{speedN} RStrideLengthMean{speedN} RSwingTimeMean{speedN};...
+                        RStanceTimeStd{speedN} RStepLengthStd{speedN} RStepTimeStd{speedN} RStrideLengthStd{speedN} RSwingTimeStd{speedN};...
+                        varAllST{speedN,1}.RStanceTime varAllST{speedN,1}.RStepLength varAllST{speedN,1}.RStepTime varAllST{speedN,1}.RStrideLength varAllST{speedN,1}.RSwingTime];
+        RightSTempN = {'RStanceTime', 'RStepLength', 'RStepTime', 'RStrideLength', 'RSwingTime'};
+
+        
         RSTTable{subject,speedN} = array2table(RightSTempM,'RowNames',namesRow,'VariableNames',RightSTempN);
 
-        % Left side
-        LeftKinM = [meanMaxLAnkle meanMinLAnkle meanMaxLHip meanMinLHip meanMaxLKnee meanMinLKnee meanMaxLArmSw meanMinLArmSw meanMaxLeulerT meanMinLeulerT meanMaxL_FP meanMinL_FP;...
-                        stdMaxLAnkle stdMinLAnkle stdMaxLHip stdMinLHip stdMaxLKnee stdMinLKnee stdMaxLArmSw stdMinLArmSw stdMaxLeulerT stdMinLeulerT stdMaxL_FP stdMinL_FP;...
-                        varMaxLAnkle varMinLAnkle varMaxLHip varMinLHip varMaxLKnee varMinLKnee varMaxLArmSw varMinLArmSw varMaxLeulerT varMinLeulerT varMaxL_FP varMinL_FP];
-        LeftKinN = {'MaxLAnkle X', 'MaxLAnkle Y', 'MaxLAnkle Z','MinLAnkle X', 'MinLAnkle Y', 'MinLAnkle Z', ...
-                'MaxLHip X', 'MaxLHip Y', 'MaxLHip Z', 'MinLHip X', 'MinLHip Y', 'MinLHip Z', ...
-                'MaxLKnee X', 'MaxLKnee Y', 'MaxLKnee Z', 'MinLKNee X', 'MinLKNee Y', 'MinLKNee Z',...
-                'MaxLArmSw X', 'MaxLArmSw Y', 'MaxLArmSw Z', 'MinLArmSw X', 'MinLArmSw Y', 'MinLArmSw Z', ...
-                'MaxLeulerT X', 'MaxLeulerT Y', 'MaxLeulerT Z', 'MinLeulerT X', 'MinLeulerT Y','MinLeulerT Z',...
-                'MaxL_FP X', 'MaxL_FP Y', 'MaxL_FP Z', 'MinL_FP X', 'MinL_FP Y','MinL_FP Z'};
-        
+        %Left
         LeftSTempM = [LStanceTimeMean{speedN} LStepLengthMean{speedN} LStepTimeMean{speedN} LStrideLengthMean{speedN} LSwingTimeMean{speedN};...
                         LStanceTimeStd{speedN} LStepLengthStd{speedN} LStepTimeStd{speedN} LStrideLengthStd{speedN} LSwingTimeStd{speedN};...
-                        varLStanceTime varLStepLength varLStepTime varLStrideLength varLSwingTime];
+                        varAllST{speedN,1}.LStanceTime varAllST{speedN,1}.LStepLength varAllST{speedN,1}.LStepTime varAllST{speedN,1}.LStrideLength varAllST{speedN,1}.LSwingTime];
         LeftSTempN = {'LStanceTime', 'LStepLength', 'LStepTime', 'LStrideLength', 'LSwingTime'};
 
-        LKinTable{subject,speedN} = array2table(LeftKinM,'RowNames',namesRow,'VariableNames',LeftKinN);
         LSTTable{subject,speedN} = array2table(LeftSTempM,'RowNames',namesRow,'VariableNames',LeftSTempN);
         
         % Global
         globalM = [CycleTimeMean{speedN} StrideLengthMean{speedN} StrideWidthMean{speedN} DSupportMean{speedN};...
                 CycleTimeStd{speedN} StrideLengthStd{speedN} StrideWidthStd{speedN} DSupportStd{speedN};...
-                varCycleTime varStrideLength varStrideWidth varDSupport];
+                varAllST{speedN,1}.CycleTime varAllST{speedN,1}.StrideLength varAllST{speedN,1}.StrideWidth varAllST{speedN,1}.DSupport];
         globalN ={'CycleTime', 'StrideLength', 'StrideWidth', 'DSupport'};
 
         globalSTTable{subject,speedN} = array2table(globalM,'RowNames',namesRow,'VariableNames',globalN);
