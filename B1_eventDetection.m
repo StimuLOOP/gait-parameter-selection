@@ -29,14 +29,14 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = 5%[1 3:8]
+for subject = [1 3:7]%[1 3:8]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
         else
             subjectN = ['REF', num2str(subject)];
         end
-        folder = ['D:\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
+        folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
         % create a folder to store the Matlab figures
         if not(isfolder([folder,'MatlabData']))
             mkdir(fullfile(folder, 'MatlabData'))
@@ -49,7 +49,7 @@ for subject = 5%[1 3:8]
         else
             subjectN = [day{subject},'_S0',num2str(subject)];
         end
-        folder = ['D:\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
+        folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
         % create a folder to store the Matlab figures
         if not(isfolder([folder,'MatlabData']))
             mkdir(fullfile(folder, 'MatlabData'))

@@ -9,7 +9,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'patient'; 
+type = 'healthy'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -23,7 +23,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:8]  %[1 3:7]
+for subject = [1 3:7]  %[1 3:7]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
@@ -33,7 +33,7 @@ for subject = [1 3:8]  %[1 3:7]
         folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
 
          % open Matlab files with gait events detected in B1
-        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_TM_RawEvents.mat'];
+        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_TM_rawEvents.mat'];
         load(fileMatlab);
         fileMatlabAll = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters.mat'];
     elseif strcmp(type,'patient')
@@ -44,7 +44,7 @@ for subject = [1 3:8]  %[1 3:7]
         end
         folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
          % open Matlab files with gait events detected in B1
-        fileMatlab = [folder,'MatlabData\',subjectN,'_TM_RawEvents.mat'];
+        fileMatlab = [folder,'MatlabData\',subjectN,'_TM_rawEvents.mat'];
         load(fileMatlab);
         fileMatlabAll = [folder,'MatlabData\',subjectN,'_parameters.mat'];
     end

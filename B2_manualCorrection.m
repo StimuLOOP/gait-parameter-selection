@@ -26,14 +26,14 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = 5%3:7  %[1 3:7]
+for subject = 1%3:7  %[1 3:7]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
         else
             subjectN = ['REF', num2str(subject)];
         end
-        folder = ['D:\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
+        folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
         % create a folder to store the Matlab figures
         if not(isfolder([folder,'MatlabData']))
             mkdir(fullfile(folder, 'MatlabData'))
@@ -41,7 +41,8 @@ for subject = 5%3:7  %[1 3:7]
         %     folder = ['C:\Users\Mathilde\Documents\StimuLOOP\DataGaitSamples\',subjectN,'\'];
 
         % open Matlab files with gait events detected in B1
-        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_TM_varMatlab.mat'];
+        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_TM_rawEvents.mat'];
+        newfileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_TM_Events.mat'];
         load(fileMatlab);
     elseif strcmp(type,'patient')
         if subject == 4
@@ -49,14 +50,15 @@ for subject = 5%3:7  %[1 3:7]
         else
             subjectN = [day{subject},'_S0',num2str(subject)];
         end
-        folder = ['D:\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
+        folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
         % create a folder to store the Matlab figures
         if not(isfolder([folder,'MatlabData']))
             mkdir(fullfile(folder, 'MatlabData'))
         end
 
         % open Matlab files with gait events detected in B1
-        fileMatlab = [folder,'MatlabData\',subjectN,'_TM_varMatlab.mat'];
+        fileMatlab = [folder,'MatlabData\',subjectN,'_TM_rawEvents.mat'];
+        newfileMatlab = [folder,'MatlabData\',subjectN,'_TM_Events.mat'];
         load(fileMatlab);
     end
 
@@ -176,6 +178,6 @@ for subject = 5%3:7  %[1 3:7]
         % Close btk handle
         btkCloseAcquisition(c3d);
     end
-    save(fileMatlab,"events");
+    save(newfileMatlab,'events');
     app.delete;
 end
