@@ -296,13 +296,16 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.L_FPY(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,2),linspace(1, sizeForce, 101)))';
             kinNorm{speedN,1}.L_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,3),linspace(1, sizeForce, 101)))';
             
-            % Compute extrema
+            % Compute extrema and ROM within gait cycles/swing phase/stance phase
             stat{speedN,1}.RAnkleMax(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
             stat{speedN,1}.RAnkleMin(e,:) = min(kinSeg{speedN,1}.RAnkle{e,1});
             stat{speedN,1}.RAnkleSwMax(e,:) = max(kinSwing{speedN,1}.RAnkle{e,1});
             stat{speedN,1}.RAnkleSwMin(e,:) = min(kinSwing{speedN,1}.RAnkle{e,1});
             stat{speedN,1}.RAnkleStMax(e,:) = max(kinStance{speedN,1}.RAnkle{e,1});
             stat{speedN,1}.RAnkleStMin(e,:) = min(kinStance{speedN,1}.RAnkle{e,1});
+            stat{speedN,1}.RAnkleROM(e,:) = stat{speedN,1}.RAnkleMax(e,:) - stat{speedN,1}.RAnkleMin(e,:);
+            stat{speedN,1}.RAnkleSwROM(e,:) = stat{speedN,1}.RAnkleSwMax(e,:) - stat{speedN,1}.RAnkleSwMin(e,:);
+            stat{speedN,1}.RAnkleStROM(e,:) = stat{speedN,1}.RAnkleStMax(e,:) - stat{speedN,1}.RAnkleStMin(e,:);
 
             stat{speedN,1}.RHipMax(e,:) = max(kinSeg{speedN,1}.RHip{e,1});
             stat{speedN,1}.RHipMin(e,:) = min(kinSeg{speedN,1}.RHip{e,1});
@@ -310,6 +313,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.RHipSwMin(e,:) = min(kinSwing{speedN,1}.RHip{e,1});
             stat{speedN,1}.RHipStMax(e,:) = max(kinStance{speedN,1}.RHip{e,1});
             stat{speedN,1}.RHipStMin(e,:) = min(kinStance{speedN,1}.RHip{e,1});
+            stat{speedN,1}.RHipROM(e,:) = stat{speedN,1}.RHipMax(e,:) - stat{speedN,1}.RHipMin(e,:);
+            stat{speedN,1}.RHipSwROM(e,:) = stat{speedN,1}.RHipSwMax(e,:) - stat{speedN,1}.RHipSwMin(e,:);
+            stat{speedN,1}.RHipStROM(e,:) = stat{speedN,1}.RHipStMax(e,:) - stat{speedN,1}.RHipStMin(e,:);
 
             stat{speedN,1}.RKneeMax(e,:) = max(kinSeg{speedN,1}.RKnee{e,1});
             stat{speedN,1}.RKneeMin(e,:) = min(kinSeg{speedN,1}.RKnee{e,1});
@@ -317,6 +323,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.RKneeSwMin(e,:) = min(kinSwing{speedN,1}.RKnee{e,1});
             stat{speedN,1}.RKneeStMax(e,:) = max(kinStance{speedN,1}.RKnee{e,1});
             stat{speedN,1}.RKneeStMin(e,:) = min(kinStance{speedN,1}.RKnee{e,1});
+            stat{speedN,1}.RKneeROM(e,:) = stat{speedN,1}.RKneeMax(e,:) - stat{speedN,1}.RKneeMin(e,:);
+            stat{speedN,1}.RKneeSwROM(e,:) = stat{speedN,1}.RKneeSwMax(e,:) - stat{speedN,1}.RKneeSwMin(e,:);
+            stat{speedN,1}.RKneeStROM(e,:) = stat{speedN,1}.RKneeStMax(e,:) - stat{speedN,1}.RKneeStMin(e,:);
 
             stat{speedN,1}.RArmSwMax(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
             stat{speedN,1}.RArmSwMin(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
@@ -324,6 +333,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.RArmSwSwMin(e,:) = min(kinSwing{speedN,1}.RArmSw{e,1});
             stat{speedN,1}.RArmSwStMax(e,:) = max(kinStance{speedN,1}.RArmSw{e,1});
             stat{speedN,1}.RArmSwStMin(e,:) = min(kinStance{speedN,1}.RArmSw{e,1});
+            stat{speedN,1}.RArmSwROM(e,:) = stat{speedN,1}.RArmSwMax(e,:) - stat{speedN,1}.RArmSwMin(e,:);
+            stat{speedN,1}.RArmSwSwROM(e,:) = stat{speedN,1}.RArmSwSwMax(e,:) - stat{speedN,1}.RArmSwSwMin(e,:);
+            stat{speedN,1}.RArmSwStROM(e,:) = stat{speedN,1}.RArmSwStMax(e,:) - stat{speedN,1}.RArmSwStMin(e,:);
 
             stat{speedN,1}.ReulerTMax(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
             stat{speedN,1}.ReulerTMin(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
@@ -331,6 +343,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.ReulerTSwMin(e,:) = min(kinSwing{speedN,1}.ReulerT{e,1});
             stat{speedN,1}.ReulerTStMax(e,:) = max(kinStance{speedN,1}.ReulerT{e,1});
             stat{speedN,1}.ReulerTStMin(e,:) = min(kinStance{speedN,1}.ReulerT{e,1});
+            stat{speedN,1}.ReulerTROM(e,:) = stat{speedN,1}.ReulerTMax(e,:) - stat{speedN,1}.ReulerTMin(e,:);
+            stat{speedN,1}.ReulerTSwROM(e,:) = stat{speedN,1}.ReulerTSwMax(e,:) - stat{speedN,1}.ReulerTSwMin(e,:);
+            stat{speedN,1}.ReulerTStROM(e,:) = stat{speedN,1}.ReulerTStMax(e,:) - stat{speedN,1}.ReulerTStMin(e,:);
 
             stat{speedN,1}.R_FPMax(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
             stat{speedN,1}.R_FPMin(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
@@ -338,6 +353,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.R_FPSwMin(e,:) = min(kinSwing{speedN,1}.R_FP{e,1});
             stat{speedN,1}.R_FPStMax(e,:) = max(kinStance{speedN,1}.R_FP{e,1});
             stat{speedN,1}.R_FPStMin(e,:) = min(kinStance{speedN,1}.R_FP{e,1});
+            stat{speedN,1}.R_FPROM(e,:) = stat{speedN,1}.R_FPMax(e,:) - stat{speedN,1}.R_FPMin(e,:);
+            stat{speedN,1}.R_FPSwROM(e,:) = stat{speedN,1}.R_FPSwMax(e,:) - stat{speedN,1}.R_FPSwMin(e,:);
+            stat{speedN,1}.R_FPStROM(e,:) = stat{speedN,1}.R_FPStMax(e,:) - stat{speedN,1}.R_FPStMin(e,:);
 
             stat{speedN,1}.LAnkleMax(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleMin(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
@@ -345,6 +363,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LAnkleSwMin(e,:) = min(kinSwing{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleStMax(e,:) = max(kinStance{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleStMin(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
+            stat{speedN,1}.LAnkleROM(e,:) = stat{speedN,1}.LAnkleMax(e,:) - stat{speedN,1}.LAnkleMin(e,:);
+            stat{speedN,1}.LAnkleSwROM(e,:) = stat{speedN,1}.LAnkleSwMax(e,:) - stat{speedN,1}.LAnkleSwMin(e,:);
+            stat{speedN,1}.LAnkleStROM(e,:) = stat{speedN,1}.LAnkleStMax(e,:) - stat{speedN,1}.LeulerTStMin(e,:);
 
             stat{speedN,1}.LHipMax(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
             stat{speedN,1}.LHipMin(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
@@ -352,6 +373,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LHipSwMin(e,:) = min(kinSwing{speedN,1}.LHip{e,1});
              stat{speedN,1}.LHipStMax(e,:) = max(kinStance{speedN,1}.LHip{e,1});
             stat{speedN,1}.LHipStMin(e,:) = min(kinStance{speedN,1}.LHip{e,1});
+            stat{speedN,1}.LHipROM(e,:) = stat{speedN,1}.LHipMax(e,:) - stat{speedN,1}.LHipMin(e,:);
+            stat{speedN,1}.LHipSwROM(e,:) = stat{speedN,1}.LHipSwMax(e,:) - stat{speedN,1}.LHipSwMin(e,:);
+            stat{speedN,1}.LHipStROM(e,:) = stat{speedN,1}.LHipStMax(e,:) - stat{speedN,1}.LHipStMin(e,:);
 
             stat{speedN,1}.LKneeMax(e,:) = max(kinSeg{speedN,1}.LKnee{e,1});
             stat{speedN,1}.LKneeMin(e,:) = min(kinSeg{speedN,1}.LKnee{e,1});
@@ -359,6 +383,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LKneeSwMin(e,:) = min(kinSwing{speedN,1}.LKnee{e,1});
             stat{speedN,1}.LKneeStMax(e,:) = max(kinStance{speedN,1}.LKnee{e,1});
             stat{speedN,1}.LKneeStMin(e,:) = min(kinStance{speedN,1}.LKnee{e,1});
+            stat{speedN,1}.LKneeROM(e,:) = stat{speedN,1}.LKneeMax(e,:) - stat{speedN,1}.LKneeMin(e,:);
+            stat{speedN,1}.LKneeSwROM(e,:) = stat{speedN,1}.LKneeSwMax(e,:) - stat{speedN,1}.LKneeSwMin(e,:);
+            stat{speedN,1}.LKneeStROM(e,:) = stat{speedN,1}.LKneeStMax(e,:) - stat{speedN,1}.LKneeStMin(e,:);
 
             stat{speedN,1}.LArmSwMax(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
             stat{speedN,1}.LArmSwMin(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
@@ -366,6 +393,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LArmSwSwMin(e,:) = min(kinSwing{speedN,1}.LArmSw{e,1});
             stat{speedN,1}.LArmSwStMax(e,:) = max(kinStance{speedN,1}.LArmSw{e,1});
             stat{speedN,1}.LArmSwStMin(e,:) = min(kinStance{speedN,1}.LArmSw{e,1});
+            stat{speedN,1}.LArmSwROM(e,:) = stat{speedN,1}.LArmSwMax(e,:) - stat{speedN,1}.LArmSwMin(e,:);
+            stat{speedN,1}.LArmSwSwROM(e,:) = stat{speedN,1}.LArmSwSwMax(e,:) - stat{speedN,1}.LArmSwSwMin(e,:);
+            stat{speedN,1}.LArmSwStROM(e,:) = stat{speedN,1}.LArmSwStMax(e,:) - stat{speedN,1}.LArmSwStMin(e,:);
 
             stat{speedN,1}.LeulerTMax(e,:) = max(kinSeg{speedN,1}.LeulerT{e,1});
             stat{speedN,1}.LeulerTMin(e,:) = min(kinSeg{speedN,1}.LeulerT{e,1});
@@ -373,6 +403,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LeulerTSwMin(e,:) = min(kinSwing{speedN,1}.LeulerT{e,1});
             stat{speedN,1}.LeulerTStMax(e,:) = max(kinStance{speedN,1}.LeulerT{e,1});
             stat{speedN,1}.LeulerTStMin(e,:) = min(kinStance{speedN,1}.LeulerT{e,1});
+            stat{speedN,1}.LeulerTROM(e,:) = stat{speedN,1}.LeulerTMax(e,:) - stat{speedN,1}.LeulerTMin(e,:);
+            stat{speedN,1}.LeulerTSwROM(e,:) = stat{speedN,1}.LeulerTSwMax(e,:) - stat{speedN,1}.LeulerTSwMin(e,:);
+            stat{speedN,1}.LeulerTStROM(e,:) = stat{speedN,1}.LeulerTStMax(e,:) - stat{speedN,1}.LeulerTStMin(e,:);
 
             stat{speedN,1}.L_FPMax(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
             stat{speedN,1}.L_FPMin(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
@@ -380,6 +413,9 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.L_FPSwMin(e,:) = min(kinSwing{speedN,1}.L_FP{e,1});
             stat{speedN,1}.L_FPStMax(e,:) = max(kinStance{speedN,1}.L_FP{e,1});
             stat{speedN,1}.L_FPStMin(e,:) = min(kinStance{speedN,1}.L_FP{e,1});
+            stat{speedN,1}.L_FPROM(e,:) = stat{speedN,1}.L_FPMax(e,:) - stat{speedN,1}.L_FPMin(e,:);
+            stat{speedN,1}.L_FPSwROM(e,:) = stat{speedN,1}.L_FPSwMax(e,:) - stat{speedN,1}.L_FPSwMin(e,:);
+            stat{speedN,1}.L_FPStROM(e,:) = stat{speedN,1}.L_FPStMax(e,:) - stat{speedN,1}.L_FPStMin(e,:);
         
         end
 
@@ -471,7 +507,7 @@ for subject = [1 3:7]%[1 3:8]
         close all
     end
     % save individual data
-    save(fileMatlab,'kinSeg','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','stat','-append');
+    save(fileMatlab,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','stat','-append');
 end
 
 % Save file with data from all subjects (1 file healthy, 1 file stroke)
