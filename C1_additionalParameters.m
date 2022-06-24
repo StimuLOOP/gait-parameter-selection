@@ -115,19 +115,23 @@ for subject = [1 3:7]%[1 3:8]
         RArmSw{speedN} = ((markers.RRSP + markers.RUSP)./2) - centerPoint;
     
         % Foot progression angles 
-        % there are random sign changes -> take the absolute value + there
-        % is 90 deg due to the Euler rotation of the virtual foot frame w/r
-        % to the lab frame
-        
+        Rfootvec = markers.RFM2 - markers.RFCC;
+        for sampleNo = 1:size(Rfootvec,1)
+            RFPA{speedN}(sampleNo,:) = atan2d(dot(cross(Rfootvec(sampleNo,:),-X),Z),dot(-X,Rfootvec(sampleNo,:)));
+        end
+        Lfootvec = markers.LFM2 - markers.LFCC;
+        for sampleNo = 1:size(Lfootvec,1)
+            LFPA{speedN}(sampleNo,:) = atan2d(dot(cross(-X,Lfootvec(sampleNo,:)),Z),dot(-X,Lfootvec(sampleNo,:)));
+        end
 
         % Filter FPA
-%         fc = 10;
+%         fc = 5;
 %         fs = freq;
 %         [b,a] = butter(2,fc/(fs/2));
-%         correctLFP_filter = filter(b,a,correctLFP,[],1);
-%         correctLFP_filter(1:10,:) = correctLFP(1:10); % remove the peak at the beginning due to the filtering
+%         LFPA_filter = filter(b,a,LFPA{speedN},[],1);
+%         LFPA_filter(1:10,:) = LFPA{speedN}(1:10); % remove the peak at the beginning due to the filtering
 % %         figure;plot(correctLFP_filter)
-%         LFPA{speedN,1} = correctLFP_filter;
+%         LFPA{speedN,1} = LFPA_filter;
 
         %% Segment kinetic and kinematic parameters with gait events + time normalization + max and mean
         for e = 1:min(size(events{speedN}.LStrike,2),size(events{speedN}.RStrike,2))-1
@@ -145,8 +149,8 @@ for subject = [1 3:7]%[1 3:8]
             kinSeg{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
 
-%             kinSeg{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
-%             kinSeg{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
+            kinSeg{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
+            kinSeg{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
             
                 % Sample rate of force plates = 600Hz-> rescaling required
             ff = 600; % forceplate frequency
@@ -185,8 +189,8 @@ for subject = [1 3:7]%[1 3:8]
             kinStance{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
             kinStance{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
 
-%             kinStance{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
-%             kinStance{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            kinStance{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
+            kinStance{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
             
             ff = 600; % forceplate frequency
             fmc = 100; % motion capture frequency
@@ -224,8 +228,8 @@ for subject = [1 3:7]%[1 3:8]
             kinSwing{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
             kinSwing{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
 
-%             kinSwing{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
-%             kinSwing{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            kinSwing{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
+            kinSwing{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
             
             ff = 600; % forceplate frequency
             fmc = 100; % motion capture frequency
@@ -256,7 +260,7 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.RArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.RArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right foot progression angle
-%             kinNorm{speedN,1}.RFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RFPA{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.RFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on right cycles
             kinNorm{speedN,1}.ReulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.ReulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,2),linspace(1, sizeVar, 101)))';
@@ -285,7 +289,7 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.LArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left foot progression angle
-%             kinNorm{speedN,1}.LFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LFPA{e}(:,1),linspace(1, sizeVar, 101)))';
+            kinNorm{speedN,1}.LFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on left cycles
             kinNorm{speedN,1}.LeulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LeulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,2),linspace(1, sizeVar, 101)))';
@@ -357,6 +361,16 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.R_FPSwROM(e,:) = stat{speedN,1}.R_FPSwMax(e,:) - stat{speedN,1}.R_FPSwMin(e,:);
             stat{speedN,1}.R_FPStROM(e,:) = stat{speedN,1}.R_FPStMax(e,:) - stat{speedN,1}.R_FPStMin(e,:);
 
+            stat{speedN,1}.RFPAMax(e,:) = max(kinSeg{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPAMin(e,:) = min(kinSeg{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPASwMax(e,:) = max(kinSwing{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPASwMin(e,:) = min(kinSwing{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPAStMax(e,:) = max(kinStance{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPAStMin(e,:) = min(kinStance{speedN,1}.RFPA{e,1});
+            stat{speedN,1}.RFPAROM(e,:) = stat{speedN,1}.RFPAMax(e,:) - stat{speedN,1}.RFPAMin(e,:);
+            stat{speedN,1}.RFPASwROM(e,:) = stat{speedN,1}.RFPASwMax(e,:) - stat{speedN,1}.RFPASwMin(e,:);
+            stat{speedN,1}.RFPAStROM(e,:) = stat{speedN,1}.RFPAStMax(e,:) - stat{speedN,1}.RFPAStMin(e,:);
+
             stat{speedN,1}.LAnkleMax(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleMin(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleSwMax(e,:) = max(kinSwing{speedN,1}.LAnkle{e,1});
@@ -365,7 +379,7 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LAnkleStMin(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
             stat{speedN,1}.LAnkleROM(e,:) = stat{speedN,1}.LAnkleMax(e,:) - stat{speedN,1}.LAnkleMin(e,:);
             stat{speedN,1}.LAnkleSwROM(e,:) = stat{speedN,1}.LAnkleSwMax(e,:) - stat{speedN,1}.LAnkleSwMin(e,:);
-            stat{speedN,1}.LAnkleStROM(e,:) = stat{speedN,1}.LAnkleStMax(e,:) - stat{speedN,1}.LeulerTStMin(e,:);
+            stat{speedN,1}.LAnkleStROM(e,:) = stat{speedN,1}.LAnkleStMax(e,:) - stat{speedN,1}.LAnkleStMin(e,:);
 
             stat{speedN,1}.LHipMax(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
             stat{speedN,1}.LHipMin(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
@@ -416,6 +430,16 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.L_FPROM(e,:) = stat{speedN,1}.L_FPMax(e,:) - stat{speedN,1}.L_FPMin(e,:);
             stat{speedN,1}.L_FPSwROM(e,:) = stat{speedN,1}.L_FPSwMax(e,:) - stat{speedN,1}.L_FPSwMin(e,:);
             stat{speedN,1}.L_FPStROM(e,:) = stat{speedN,1}.L_FPStMax(e,:) - stat{speedN,1}.L_FPStMin(e,:);
+
+            stat{speedN,1}.LFPAMax(e,:) = max(kinSeg{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPAMin(e,:) = min(kinSeg{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPASwMax(e,:) = max(kinSwing{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPASwMin(e,:) = min(kinSwing{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPAStMax(e,:) = max(kinStance{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPAStMin(e,:) = min(kinStance{speedN,1}.LFPA{e,1});
+            stat{speedN,1}.LFPAROM(e,:) = stat{speedN,1}.LFPAMax(e,:) - stat{speedN,1}.LFPAMin(e,:);
+            stat{speedN,1}.LFPASwROM(e,:) = stat{speedN,1}.LFPASwMax(e,:) - stat{speedN,1}.LFPASwMin(e,:);
+            stat{speedN,1}.LFPAStROM(e,:) = stat{speedN,1}.LFPAStMax(e,:) - stat{speedN,1}.LFPAStMin(e,:);
         
         end
 
