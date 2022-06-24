@@ -27,6 +27,7 @@ elseif strcmp(type,'patient')
 end
 
 for subject = [1 3:7]%[1 3:8]
+    clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable
     % Load data
     if strcmp(type,'healthy')
         if subject < 10
