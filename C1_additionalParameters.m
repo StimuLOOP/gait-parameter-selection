@@ -12,7 +12,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'healthy'; 
+type = 'patient'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -21,13 +21,13 @@ if strcmp(type,'healthy')
     suffixe = {'_MoC'; '_MoC';'';'';'_gapfilled';'';''};
 elseif strcmp(type,'patient')
     day = {'190913','','190924','191003','191004','191004','191022','191023'};
-    speeds = {'FST0.15' 'PGV0.1' ''; '' '' '';'FST0.7' 'PGV0.4' 'SLW0.4'; 'FST0.15' 'PGV0.05' '';'FST0.75' 'PGV0.55' 'SLW0.3'; 'PGV0.5' 'PGV0.8' 'PGV0.25'; 'FST0.35' 'PGV0.20' 'SLW0.07crop'; 'FST0.3' 'PGV0.17' 'SLW0.08'};
+    speeds = {'FST0.15' 'PGV0.1' ''; '' '' '';'FST0.7' 'PGV0.4' 'SLW0.4'; 'FST0.15' 'PGV0.05' '';'FST0.75' 'PGV0.55' 'SLW0.3'; 'PGV0.25' 'PGV0.5' 'PGV0.8'; 'FST0.35' 'PGV0.20' 'SLW0.07crop'; 'FST0.3' 'PGV0.17' 'SLW0.08'};
     assist ={'_NH_NS' '_NRH_NS1' '';'' '' ''; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'};
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:7]%[1 3:8]
-    clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable
+for subject = [1 3:8]%[1 3:8]
+    clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable assist
     % Load data
     if strcmp(type,'healthy')
         if subject < 10
@@ -62,6 +62,9 @@ for subject = [1 3:7]%[1 3:8]
         if strcmp(type,'healthy')
             filec3d = [folder, day{subject},'_',subjectN,'_TM_',speeds{speedN},'_NH_NS',suffixe{subject}];
         elseif strcmp(type,'patient')
+            if isempty(speeds{subject, speedN})
+                break
+            end
             filec3d = [folder,subjectN,'_TM_',speeds{subject,speedN},assist{subject,speedN},suffixe];
         end
         c3d = btkReadAcquisition([filec3d,'.c3d']);
@@ -106,14 +109,18 @@ for subject = [1 3:7]%[1 3:8]
 
             % Compute Euler angles between the lab and the trunk frames
             eulerT{speedN,1}(i,:) = rotm2eul(R);
+
+            % Arm swing
+            centerPoint = (markers.RASI + markers.LASI)./2;
+            LArmSw{speedN} = ((markers.LRSP + markers.LUSP)./2) - centerPoint;
+            RArmSw{speedN} = ((markers.RRSP + markers.RUSP)./2) - centerPoint;
         else
             eulerT{speedN,1} = [];
+            LArmSw{speedN} = [];
+            RArmSw{speedN} = [];
         end
 
-        % Arm swing
-        centerPoint = (markers.RASI + markers.LASI)./2;
-        LArmSw{speedN} = ((markers.LRSP + markers.LUSP)./2) - centerPoint;
-        RArmSw{speedN} = ((markers.RRSP + markers.RUSP)./2) - centerPoint;
+        
     
         % Foot progression angles 
         Rfootvec = markers.RFM2 - markers.RFCC;
@@ -135,7 +142,7 @@ for subject = [1 3:7]%[1 3:8]
 %         LFPA{speedN,1} = LFPA_filter;
 
         %% Segment kinetic and kinematic parameters with gait events + time normalization + max and mean
-        for e = 1:min(size(events{speedN}.LStrike,2),size(events{speedN}.RStrike,2))-1
+        for e = 1:min([size(events{speedN}.LStrike,2) size(events{speedN}.LOff,2) size(events{speedN}.RStrike,2) size(events{speedN}.ROff,2)])-1
             % Segmentation - Step level
             kinSeg{speedN,1}.RAnkle{e,1} = RAnkle{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.RHip{e,1} = RHip{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
@@ -147,8 +154,10 @@ for subject = [1 3:7]%[1 3:8]
             kinSeg{speedN,1}.LKnee{e,1} = LKnee{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
             kinSeg{speedN,1}.LKnee{e,1}(:,1) = - kinSeg{speedN,1}.LKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
             
+            if strcmp(type,"healthy")
             kinSeg{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
+            end
 
             kinSeg{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.RStrike(e+1),:);
             kinSeg{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LStrike(e+1),:);
@@ -187,8 +196,10 @@ for subject = [1 3:7]%[1 3:8]
             kinStance{speedN,1}.LKnee{e,1} = LKnee{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
             kinStance{speedN,1}.LKnee{e,1}(:,1) = - kinStance{speedN,1}.LKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
             
+            if strcmp(type,"healthy")
             kinStance{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
             kinStance{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
+            end
 
             kinStance{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.RStrike(e):events{speedN}.ROff(indexROff),:);
             kinStance{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LStrike(e):events{speedN}.LOff(indexLOff),:);
@@ -226,8 +237,10 @@ for subject = [1 3:7]%[1 3:8]
             kinSwing{speedN,1}.LKnee{e,1} = LKnee{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
             kinSwing{speedN,1}.LKnee{e,1}(:,1) = - kinSwing{speedN,1}.LKnee{e,1}(:,1); % take the opposite so that knee flexion is positive
             
+            if strcmp(type,"healthy")
             kinSwing{speedN,1}.RArmSw{e,1} = RArmSw{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
             kinSwing{speedN,1}.LArmSw{e,1} = LArmSw{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
+            end
 
             kinSwing{speedN,1}.RFPA{e,1} = RFPA{speedN}(events{speedN}.ROff(e):events{speedN}.RStrike(indexRStrike),:);
             kinSwing{speedN,1}.LFPA{e,1} = LFPA{speedN}(events{speedN}.LOff(e):events{speedN}.LStrike(indexLStrike),:);
@@ -257,15 +270,19 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.RKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RKnee{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.RKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RKnee{e}(:,3),linspace(1, sizeVar, 101)))';
             % Right arm swing
+            if strcmp(type,"healthy")
             kinNorm{speedN,1}.RArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.RArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.RArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            end
             % Right foot progression angle
             kinNorm{speedN,1}.RFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.RFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on right cycles
+            if strcmp(type,"healthy")
             kinNorm{speedN,1}.ReulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.ReulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.ReulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.ReulerT{e}(:,3),linspace(1, sizeVar, 101)))';
+            end
             % Right forceplate
             sizeForce = size(kinSeg{speedN,1}.R_FP{e}(:,1),1);
             kinNorm{speedN,1}.R_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.R_FP{e}(:,1),linspace(1, sizeForce, 101)))';
@@ -286,15 +303,19 @@ for subject = [1 3:7]%[1 3:8]
             kinNorm{speedN,1}.LKneeY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LKnee{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LKneeZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LKnee{e}(:,3),linspace(1, sizeVar, 101)))';
             % Left arm swing
+            if strcmp(type,"healthy")
             kinNorm{speedN,1}.LArmSwX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LArmSwY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LArmSwZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LArmSw{e}(:,3),linspace(1, sizeVar, 101)))';
+            end
             % Left foot progression angle
             kinNorm{speedN,1}.LFPA(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LFPA{e}(:,1),linspace(1, sizeVar, 101)))';
             % Trunk angles on left cycles
+            if strcmp(type,"healthy")
             kinNorm{speedN,1}.LeulerTX(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,1),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LeulerTY(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,2),linspace(1, sizeVar, 101)))';
             kinNorm{speedN,1}.LeulerTZ(:,e) = (interp1([1:sizeVar], kinSeg{speedN,1}.LeulerT{e}(:,3),linspace(1, sizeVar, 101)))';
+            end
             % Left forceplate
             sizeForce = size(kinSeg{speedN,1}.L_FP{e}(:,1),1);
             kinNorm{speedN,1}.L_FPX(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,1),linspace(1, sizeForce, 101)))';
@@ -332,6 +353,7 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.RKneeSwROM(e,:) = stat{speedN,1}.RKneeSwMax(e,:) - stat{speedN,1}.RKneeSwMin(e,:);
             stat{speedN,1}.RKneeStROM(e,:) = stat{speedN,1}.RKneeStMax(e,:) - stat{speedN,1}.RKneeStMin(e,:);
 
+            if strcmp(type,"healthy")
             stat{speedN,1}.RArmSwMax(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
             stat{speedN,1}.RArmSwMin(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
             stat{speedN,1}.RArmSwSwMax(e,:) = max(kinSwing{speedN,1}.RArmSw{e,1});
@@ -341,7 +363,7 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.RArmSwROM(e,:) = stat{speedN,1}.RArmSwMax(e,:) - stat{speedN,1}.RArmSwMin(e,:);
             stat{speedN,1}.RArmSwSwROM(e,:) = stat{speedN,1}.RArmSwSwMax(e,:) - stat{speedN,1}.RArmSwSwMin(e,:);
             stat{speedN,1}.RArmSwStROM(e,:) = stat{speedN,1}.RArmSwStMax(e,:) - stat{speedN,1}.RArmSwStMin(e,:);
-
+            
             stat{speedN,1}.ReulerTMax(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
             stat{speedN,1}.ReulerTMin(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
             stat{speedN,1}.ReulerTSwMax(e,:) = max(kinSwing{speedN,1}.ReulerT{e,1});
@@ -351,6 +373,7 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.ReulerTROM(e,:) = stat{speedN,1}.ReulerTMax(e,:) - stat{speedN,1}.ReulerTMin(e,:);
             stat{speedN,1}.ReulerTSwROM(e,:) = stat{speedN,1}.ReulerTSwMax(e,:) - stat{speedN,1}.ReulerTSwMin(e,:);
             stat{speedN,1}.ReulerTStROM(e,:) = stat{speedN,1}.ReulerTStMax(e,:) - stat{speedN,1}.ReulerTStMin(e,:);
+            end
 
             stat{speedN,1}.R_FPMax(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
             stat{speedN,1}.R_FPMin(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
@@ -401,7 +424,8 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LKneeROM(e,:) = stat{speedN,1}.LKneeMax(e,:) - stat{speedN,1}.LKneeMin(e,:);
             stat{speedN,1}.LKneeSwROM(e,:) = stat{speedN,1}.LKneeSwMax(e,:) - stat{speedN,1}.LKneeSwMin(e,:);
             stat{speedN,1}.LKneeStROM(e,:) = stat{speedN,1}.LKneeStMax(e,:) - stat{speedN,1}.LKneeStMin(e,:);
-
+            
+            if strcmp(type,"healthy")
             stat{speedN,1}.LArmSwMax(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
             stat{speedN,1}.LArmSwMin(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
             stat{speedN,1}.LArmSwSwMax(e,:) = max(kinSwing{speedN,1}.LArmSw{e,1});
@@ -421,6 +445,7 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LeulerTROM(e,:) = stat{speedN,1}.LeulerTMax(e,:) - stat{speedN,1}.LeulerTMin(e,:);
             stat{speedN,1}.LeulerTSwROM(e,:) = stat{speedN,1}.LeulerTSwMax(e,:) - stat{speedN,1}.LeulerTSwMin(e,:);
             stat{speedN,1}.LeulerTStROM(e,:) = stat{speedN,1}.LeulerTStMax(e,:) - stat{speedN,1}.LeulerTStMin(e,:);
+            end
 
             stat{speedN,1}.L_FPMax(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
             stat{speedN,1}.L_FPMin(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
@@ -443,6 +468,10 @@ for subject = [1 3:7]%[1 3:8]
             stat{speedN,1}.LFPAStROM(e,:) = stat{speedN,1}.LFPAStMax(e,:) - stat{speedN,1}.LFPAStMin(e,:);
         
         end
+        % Plot time-normalized data to check gait events
+            figure(subject); hold on;
+            subplot(2,7,speedN);
+            plot(kinNorm{speedN,1}.LKneeX);
 
         %% Compute statistics (mean and std of spatiotemporal obtained with Visual3D) 
         % Mean over gait cycles + std + coeff of variation
@@ -454,22 +483,22 @@ for subject = [1 3:7]%[1 3:8]
             varAllKin{speedN,1}.(fields{k}) = stdAllKin{speedN,1}.(fields{k})./meanAllKin{speedN,1}.(fields{k});
         end
 
-        varAllST{speedN,1}.RStanceTime = RStanceTimeMean{speedN}/RStanceTimeStd{speedN};
-        varAllST{speedN,1}.RStepLength = RStepLengthMean{speedN}/RStepLengthStd{speedN};
-        varAllST{speedN,1}.RStepTime = RStepTimeMean{speedN}/RStepTimeStd{speedN};
-        varAllST{speedN,1}.RStrideLength = RStrideLengthMean{speedN}/RStrideLengthStd{speedN};
-        varAllST{speedN,1}.RSwingTime = RSwingTimeMean{speedN}/RSwingTimeStd{speedN};
+        varAllST{speedN,1}.RStanceTime = RStanceTimeStd{speedN}/RStanceTimeMean{speedN};
+        varAllST{speedN,1}.RStepLength = RStepLengthStd{speedN}/RStepLengthMean{speedN};
+        varAllST{speedN,1}.RStepTime = RStepTimeStd{speedN}/RStepTimeMean{speedN};
+        varAllST{speedN,1}.RStrideLength = RStrideLengthStd{speedN}/RStrideLengthMean{speedN};
+        varAllST{speedN,1}.RSwingTime = RSwingTimeStd{speedN}/RSwingTimeMean{speedN};
 
-        varAllST{speedN,1}.LStanceTime = LStanceTimeMean{speedN}/LStanceTimeStd{speedN};
-        varAllST{speedN,1}.LStepLength = LStepLengthMean{speedN}/LStepLengthStd{speedN};
-        varAllST{speedN,1}.LStepTime = LStepTimeMean{speedN}/LStepTimeStd{speedN};
-        varAllST{speedN,1}.LStrideLength = LStrideLengthMean{speedN}/LStrideLengthStd{speedN};
-        varAllST{speedN,1}.LSwingTime = LSwingTimeMean{speedN}/LSwingTimeStd{speedN};
+        varAllST{speedN,1}.LStanceTime = LStanceTimeStd{speedN}/LStanceTimeMean{speedN};
+        varAllST{speedN,1}.LStepLength = LStepLengthStd{speedN}/LStepLengthMean{speedN};
+        varAllST{speedN,1}.LStepTime = LStepTimeStd{speedN}/LStepTimeMean{speedN};
+        varAllST{speedN,1}.LStrideLength = LStrideLengthStd{speedN}/LStrideLengthMean{speedN};
+        varAllST{speedN,1}.LSwingTime = LSwingTimeStd{speedN}/LSwingTimeMean{speedN};
 
-        varAllST{speedN,1}.CycleTime = CycleTimeMean{speedN}/CycleTimeStd{speedN};
-        varAllST{speedN,1}.StrideLength = StrideLengthMean{speedN}/StrideLengthStd{speedN};
-        varAllST{speedN,1}.StrideWidth = StrideWidthMean{speedN}/StrideWidthStd{speedN};
-        varAllST{speedN,1}.DSupport = DSupportMean{speedN}/DSupportStd{speedN};
+        varAllST{speedN,1}.CycleTime = CycleTimeStd{speedN}/CycleTimeMean{speedN};
+        varAllST{speedN,1}.StrideLength = StrideLengthStd{speedN}/StrideLengthMean{speedN};
+        varAllST{speedN,1}.StrideWidth = StrideWidthStd{speedN}/StrideWidthMean{speedN};
+        varAllST{speedN,1}.DSupport = DSupportStd{speedN}/DSupportMean{speedN};
         
         %% Save in tables
         namesRow = {'Mean','Std','Coeff var'};
@@ -529,7 +558,7 @@ for subject = [1 3:7]%[1 3:8]
 
         globalSTTable{subject,speedN} = array2table(globalM,'RowNames',namesRow,'VariableNames',globalN);
 
-        close all
+%         close all
     end
     % save individual data
     save(fileMatlab,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','stat','-append');
@@ -537,7 +566,7 @@ end
 
 % Save file with data from all subjects (1 file healthy, 1 file stroke)
 if strcmp(type,'healthy')
-    save('D:\StimuLOOP\DataGait\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
+    save('D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
 elseif strcmp (type,'patient')
-    save('D:\StimuLOOP\DataGait\statPatient.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
+    save('D:\StimuLOOP\DataGait\NM_GaitSegmentation\statPatient.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
 end
