@@ -11,7 +11,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'healthy'; 
+type = 'patient'; 
 
 insert = @(a, x, n)cat(2,  x(1:n), a, x(n+1:end)); % define insert functions
 % Define parameters/ file characteristics
@@ -26,7 +26,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = 1%3:7  %[1 3:7]
+for subject = 6%3:7  %[1 3:7]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
@@ -177,7 +177,8 @@ for subject = 1%3:7  %[1 3:7]
         events{speedN}.RStrike = Right_Strike;
         % Close btk handle
         btkCloseAcquisition(c3d);
+        save(newfileMatlab,'events','-append');
     end
-    save(newfileMatlab,'events');
+    save(newfileMatlab,'events','-append');
     app.delete;
 end
