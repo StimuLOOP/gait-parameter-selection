@@ -9,7 +9,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'healthy'; 
+type = 'patient'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -18,12 +18,12 @@ if strcmp(type,'healthy')
     suffixe = {'_MoC'; '_MoC';'';'';'_gapfilled';'';''};
 elseif strcmp(type,'patient')
     day = {'190913','','190924','191003','191004','191004','191022','191023'};
-    speeds = {'FST0.15' 'PGV0.1' ''; '' '' '';'FST0.7' 'PGV0.4' 'SLW0.4'; 'FST0.15' 'PGV0.05' '';'FST0.75' 'PGV0.55' 'SLW0.3'; 'PGV0.5' 'PGV0.8' 'PGV0.25'; 'FST0.35' 'PGV0.20' 'SLW0.07crop'; 'FST0.3' 'PGV0.17' 'SLW0.08'};
+    speeds = {'FST0.15' 'PGV0.1' ''; '' '' '';'FST0.7' 'PGV0.4' 'SLW0.4'; 'FST0.15' 'PGV0.05' '';'FST0.75' 'PGV0.55' 'SLW0.3'; 'PGV0.25' 'PGV0.5' 'PGV0.8'; 'FST0.35' 'PGV0.20' 'SLW0.07crop'; 'FST0.3' 'PGV0.17' 'SLW0.08'};
     assist ={'_NH_NS' '_NRH_NS1' '';'' '' ''; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'};
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:7]  %[1 3:7]
+for subject = 6%[1 3:7]  %[1 3:7]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
@@ -84,7 +84,7 @@ for subject = [1 3:7]  %[1 3:7]
         events{speedN,1}.RStrike = round(evts.Right_Foot_Strike*freq - ff);
 
         % Close btk handle
-        btkCloseAcquisition(c3d);
+       btkCloseAcquisition(c3d);
     end
     save(fileMatlabAll,'events','rawEvents','-append');
 end
