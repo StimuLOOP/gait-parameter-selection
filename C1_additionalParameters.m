@@ -12,7 +12,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'patient'; 
+type = 'healthy'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -26,8 +26,8 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:8]%[1 3:8]
-    clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable assist
+for subject = [1 3:7]%[1 3:8]
+    clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable assist paramAll
     % Load data
     if strcmp(type,'healthy')
         if subject < 10
@@ -323,161 +323,182 @@ for subject = [1 3:8]%[1 3:8]
             kinNorm{speedN,1}.L_FPZ(:,e) = (interp1([1:sizeForce], kinSeg{speedN,1}.L_FP{e}(:,3),linspace(1, sizeForce, 101)))';
             
             % Compute extrema and ROM within gait cycles/swing phase/stance phase
-            stat{speedN,1}.RAnkleMax(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleMin(e,:) = min(kinSeg{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleSwMax(e,:) = max(kinSwing{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleSwMin(e,:) = min(kinSwing{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleStMax(e,:) = max(kinStance{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleStMin(e,:) = min(kinStance{speedN,1}.RAnkle{e,1});
-            stat{speedN,1}.RAnkleROM(e,:) = stat{speedN,1}.RAnkleMax(e,:) - stat{speedN,1}.RAnkleMin(e,:);
-            stat{speedN,1}.RAnkleSwROM(e,:) = stat{speedN,1}.RAnkleSwMax(e,:) - stat{speedN,1}.RAnkleSwMin(e,:);
-            stat{speedN,1}.RAnkleStROM(e,:) = stat{speedN,1}.RAnkleStMax(e,:) - stat{speedN,1}.RAnkleStMin(e,:);
+            param{speedN,1}.RAnkleMax(e,:) = max(kinSeg{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleMin(e,:) = min(kinSeg{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleSwMax(e,:) = max(kinSwing{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleSwMin(e,:) = min(kinSwing{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleStMax(e,:) = max(kinStance{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleStMin(e,:) = min(kinStance{speedN,1}.RAnkle{e,1});
+            param{speedN,1}.RAnkleROM(e,:) = param{speedN,1}.RAnkleMax(e,:) - param{speedN,1}.RAnkleMin(e,:);
+            param{speedN,1}.RAnkleSwROM(e,:) = param{speedN,1}.RAnkleSwMax(e,:) - param{speedN,1}.RAnkleSwMin(e,:);
+            param{speedN,1}.RAnkleStROM(e,:) = param{speedN,1}.RAnkleStMax(e,:) - param{speedN,1}.RAnkleStMin(e,:);
 
-            stat{speedN,1}.RHipMax(e,:) = max(kinSeg{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipMin(e,:) = min(kinSeg{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipSwMax(e,:) = max(kinSwing{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipSwMin(e,:) = min(kinSwing{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipStMax(e,:) = max(kinStance{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipStMin(e,:) = min(kinStance{speedN,1}.RHip{e,1});
-            stat{speedN,1}.RHipROM(e,:) = stat{speedN,1}.RHipMax(e,:) - stat{speedN,1}.RHipMin(e,:);
-            stat{speedN,1}.RHipSwROM(e,:) = stat{speedN,1}.RHipSwMax(e,:) - stat{speedN,1}.RHipSwMin(e,:);
-            stat{speedN,1}.RHipStROM(e,:) = stat{speedN,1}.RHipStMax(e,:) - stat{speedN,1}.RHipStMin(e,:);
+            param{speedN,1}.RHipMax(e,:) = max(kinSeg{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipMin(e,:) = min(kinSeg{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipSwMax(e,:) = max(kinSwing{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipSwMin(e,:) = min(kinSwing{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipStMax(e,:) = max(kinStance{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipStMin(e,:) = min(kinStance{speedN,1}.RHip{e,1});
+            param{speedN,1}.RHipROM(e,:) = param{speedN,1}.RHipMax(e,:) - param{speedN,1}.RHipMin(e,:);
+            param{speedN,1}.RHipSwROM(e,:) = param{speedN,1}.RHipSwMax(e,:) - param{speedN,1}.RHipSwMin(e,:);
+            param{speedN,1}.RHipStROM(e,:) = param{speedN,1}.RHipStMax(e,:) - param{speedN,1}.RHipStMin(e,:);
 
-            stat{speedN,1}.RKneeMax(e,:) = max(kinSeg{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeMin(e,:) = min(kinSeg{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeSwMax(e,:) = max(kinSwing{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeSwMin(e,:) = min(kinSwing{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeStMax(e,:) = max(kinStance{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeStMin(e,:) = min(kinStance{speedN,1}.RKnee{e,1});
-            stat{speedN,1}.RKneeROM(e,:) = stat{speedN,1}.RKneeMax(e,:) - stat{speedN,1}.RKneeMin(e,:);
-            stat{speedN,1}.RKneeSwROM(e,:) = stat{speedN,1}.RKneeSwMax(e,:) - stat{speedN,1}.RKneeSwMin(e,:);
-            stat{speedN,1}.RKneeStROM(e,:) = stat{speedN,1}.RKneeStMax(e,:) - stat{speedN,1}.RKneeStMin(e,:);
+            param{speedN,1}.RKneeMax(e,:) = max(kinSeg{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeMin(e,:) = min(kinSeg{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeSwMax(e,:) = max(kinSwing{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeSwMin(e,:) = min(kinSwing{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeStMax(e,:) = max(kinStance{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeStMin(e,:) = min(kinStance{speedN,1}.RKnee{e,1});
+            param{speedN,1}.RKneeROM(e,:) = param{speedN,1}.RKneeMax(e,:) - param{speedN,1}.RKneeMin(e,:);
+            param{speedN,1}.RKneeSwROM(e,:) = param{speedN,1}.RKneeSwMax(e,:) - param{speedN,1}.RKneeSwMin(e,:);
+            param{speedN,1}.RKneeStROM(e,:) = param{speedN,1}.RKneeStMax(e,:) - param{speedN,1}.RKneeStMin(e,:);
 
             if strcmp(type,"healthy")
-            stat{speedN,1}.RArmSwMax(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwMin(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwSwMax(e,:) = max(kinSwing{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwSwMin(e,:) = min(kinSwing{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwStMax(e,:) = max(kinStance{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwStMin(e,:) = min(kinStance{speedN,1}.RArmSw{e,1});
-            stat{speedN,1}.RArmSwROM(e,:) = stat{speedN,1}.RArmSwMax(e,:) - stat{speedN,1}.RArmSwMin(e,:);
-            stat{speedN,1}.RArmSwSwROM(e,:) = stat{speedN,1}.RArmSwSwMax(e,:) - stat{speedN,1}.RArmSwSwMin(e,:);
-            stat{speedN,1}.RArmSwStROM(e,:) = stat{speedN,1}.RArmSwStMax(e,:) - stat{speedN,1}.RArmSwStMin(e,:);
+            param{speedN,1}.RArmSwMax(e,:) = max(kinSeg{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwMin(e,:) = min(kinSeg{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwSwMax(e,:) = max(kinSwing{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwSwMin(e,:) = min(kinSwing{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwStMax(e,:) = max(kinStance{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwStMin(e,:) = min(kinStance{speedN,1}.RArmSw{e,1});
+            param{speedN,1}.RArmSwROM(e,:) = param{speedN,1}.RArmSwMax(e,:) - param{speedN,1}.RArmSwMin(e,:);
+            param{speedN,1}.RArmSwSwROM(e,:) = param{speedN,1}.RArmSwSwMax(e,:) - param{speedN,1}.RArmSwSwMin(e,:);
+            param{speedN,1}.RArmSwStROM(e,:) = param{speedN,1}.RArmSwStMax(e,:) - param{speedN,1}.RArmSwStMin(e,:);
             
-            stat{speedN,1}.ReulerTMax(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTMin(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTSwMax(e,:) = max(kinSwing{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTSwMin(e,:) = min(kinSwing{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTStMax(e,:) = max(kinStance{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTStMin(e,:) = min(kinStance{speedN,1}.ReulerT{e,1});
-            stat{speedN,1}.ReulerTROM(e,:) = stat{speedN,1}.ReulerTMax(e,:) - stat{speedN,1}.ReulerTMin(e,:);
-            stat{speedN,1}.ReulerTSwROM(e,:) = stat{speedN,1}.ReulerTSwMax(e,:) - stat{speedN,1}.ReulerTSwMin(e,:);
-            stat{speedN,1}.ReulerTStROM(e,:) = stat{speedN,1}.ReulerTStMax(e,:) - stat{speedN,1}.ReulerTStMin(e,:);
+            param{speedN,1}.ReulerTMax(e,:) = max(kinSeg{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTMin(e,:) = min(kinSeg{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTSwMax(e,:) = max(kinSwing{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTSwMin(e,:) = min(kinSwing{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTStMax(e,:) = max(kinStance{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTStMin(e,:) = min(kinStance{speedN,1}.ReulerT{e,1});
+            param{speedN,1}.ReulerTROM(e,:) = param{speedN,1}.ReulerTMax(e,:) - param{speedN,1}.ReulerTMin(e,:);
+            param{speedN,1}.ReulerTSwROM(e,:) = param{speedN,1}.ReulerTSwMax(e,:) - param{speedN,1}.ReulerTSwMin(e,:);
+            param{speedN,1}.ReulerTStROM(e,:) = param{speedN,1}.ReulerTStMax(e,:) - param{speedN,1}.ReulerTStMin(e,:);
             end
 
-            stat{speedN,1}.R_FPMax(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPMin(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPSwMax(e,:) = max(kinSwing{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPSwMin(e,:) = min(kinSwing{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPStMax(e,:) = max(kinStance{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPStMin(e,:) = min(kinStance{speedN,1}.R_FP{e,1});
-            stat{speedN,1}.R_FPROM(e,:) = stat{speedN,1}.R_FPMax(e,:) - stat{speedN,1}.R_FPMin(e,:);
-            stat{speedN,1}.R_FPSwROM(e,:) = stat{speedN,1}.R_FPSwMax(e,:) - stat{speedN,1}.R_FPSwMin(e,:);
-            stat{speedN,1}.R_FPStROM(e,:) = stat{speedN,1}.R_FPStMax(e,:) - stat{speedN,1}.R_FPStMin(e,:);
+            param{speedN,1}.R_FPMax(e,:) = max(kinSeg{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPMin(e,:) = min(kinSeg{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPSwMax(e,:) = max(kinSwing{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPSwMin(e,:) = min(kinSwing{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPStMax(e,:) = max(kinStance{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPStMin(e,:) = min(kinStance{speedN,1}.R_FP{e,1});
+            param{speedN,1}.R_FPROM(e,:) = param{speedN,1}.R_FPMax(e,:) - param{speedN,1}.R_FPMin(e,:);
+            param{speedN,1}.R_FPSwROM(e,:) = param{speedN,1}.R_FPSwMax(e,:) - param{speedN,1}.R_FPSwMin(e,:);
+            param{speedN,1}.R_FPStROM(e,:) = param{speedN,1}.R_FPStMax(e,:) - param{speedN,1}.R_FPStMin(e,:);
 
-            stat{speedN,1}.RFPAMax(e,:) = max(kinSeg{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPAMin(e,:) = min(kinSeg{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPASwMax(e,:) = max(kinSwing{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPASwMin(e,:) = min(kinSwing{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPAStMax(e,:) = max(kinStance{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPAStMin(e,:) = min(kinStance{speedN,1}.RFPA{e,1});
-            stat{speedN,1}.RFPAROM(e,:) = stat{speedN,1}.RFPAMax(e,:) - stat{speedN,1}.RFPAMin(e,:);
-            stat{speedN,1}.RFPASwROM(e,:) = stat{speedN,1}.RFPASwMax(e,:) - stat{speedN,1}.RFPASwMin(e,:);
-            stat{speedN,1}.RFPAStROM(e,:) = stat{speedN,1}.RFPAStMax(e,:) - stat{speedN,1}.RFPAStMin(e,:);
+            param{speedN,1}.RFPAMax(e,:) = max(kinSeg{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPAMin(e,:) = min(kinSeg{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPASwMax(e,:) = max(kinSwing{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPASwMin(e,:) = min(kinSwing{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPAStMax(e,:) = max(kinStance{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPAStMin(e,:) = min(kinStance{speedN,1}.RFPA{e,1});
+            param{speedN,1}.RFPAROM(e,:) = param{speedN,1}.RFPAMax(e,:) - param{speedN,1}.RFPAMin(e,:);
+            param{speedN,1}.RFPASwROM(e,:) = param{speedN,1}.RFPASwMax(e,:) - param{speedN,1}.RFPASwMin(e,:);
+            param{speedN,1}.RFPAStROM(e,:) = param{speedN,1}.RFPAStMax(e,:) - param{speedN,1}.RFPAStMin(e,:);
 
-            stat{speedN,1}.LAnkleMax(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleMin(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleSwMax(e,:) = max(kinSwing{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleSwMin(e,:) = min(kinSwing{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleStMax(e,:) = max(kinStance{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleStMin(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
-            stat{speedN,1}.LAnkleROM(e,:) = stat{speedN,1}.LAnkleMax(e,:) - stat{speedN,1}.LAnkleMin(e,:);
-            stat{speedN,1}.LAnkleSwROM(e,:) = stat{speedN,1}.LAnkleSwMax(e,:) - stat{speedN,1}.LAnkleSwMin(e,:);
-            stat{speedN,1}.LAnkleStROM(e,:) = stat{speedN,1}.LAnkleStMax(e,:) - stat{speedN,1}.LAnkleStMin(e,:);
+            param{speedN,1}.LAnkleMax(e,:) = max(kinSeg{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleMin(e,:) = min(kinSeg{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleSwMax(e,:) = max(kinSwing{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleSwMin(e,:) = min(kinSwing{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleStMax(e,:) = max(kinStance{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleStMin(e,:) = min(kinStance{speedN,1}.LAnkle{e,1});
+            param{speedN,1}.LAnkleROM(e,:) = param{speedN,1}.LAnkleMax(e,:) - param{speedN,1}.LAnkleMin(e,:);
+            param{speedN,1}.LAnkleSwROM(e,:) = param{speedN,1}.LAnkleSwMax(e,:) - param{speedN,1}.LAnkleSwMin(e,:);
+            param{speedN,1}.LAnkleStROM(e,:) = param{speedN,1}.LAnkleStMax(e,:) - param{speedN,1}.LAnkleStMin(e,:);
 
-            stat{speedN,1}.LHipMax(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
-            stat{speedN,1}.LHipMin(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
-             stat{speedN,1}.LHipSwMax(e,:) = max(kinSwing{speedN,1}.LHip{e,1});
-            stat{speedN,1}.LHipSwMin(e,:) = min(kinSwing{speedN,1}.LHip{e,1});
-             stat{speedN,1}.LHipStMax(e,:) = max(kinStance{speedN,1}.LHip{e,1});
-            stat{speedN,1}.LHipStMin(e,:) = min(kinStance{speedN,1}.LHip{e,1});
-            stat{speedN,1}.LHipROM(e,:) = stat{speedN,1}.LHipMax(e,:) - stat{speedN,1}.LHipMin(e,:);
-            stat{speedN,1}.LHipSwROM(e,:) = stat{speedN,1}.LHipSwMax(e,:) - stat{speedN,1}.LHipSwMin(e,:);
-            stat{speedN,1}.LHipStROM(e,:) = stat{speedN,1}.LHipStMax(e,:) - stat{speedN,1}.LHipStMin(e,:);
+            param{speedN,1}.LHipMax(e,:) = max(kinSeg{speedN,1}.LHip{e,1});
+            param{speedN,1}.LHipMin(e,:) = min(kinSeg{speedN,1}.LHip{e,1});
+             param{speedN,1}.LHipSwMax(e,:) = max(kinSwing{speedN,1}.LHip{e,1});
+            param{speedN,1}.LHipSwMin(e,:) = min(kinSwing{speedN,1}.LHip{e,1});
+             param{speedN,1}.LHipStMax(e,:) = max(kinStance{speedN,1}.LHip{e,1});
+            param{speedN,1}.LHipStMin(e,:) = min(kinStance{speedN,1}.LHip{e,1});
+            param{speedN,1}.LHipROM(e,:) = param{speedN,1}.LHipMax(e,:) - param{speedN,1}.LHipMin(e,:);
+            param{speedN,1}.LHipSwROM(e,:) = param{speedN,1}.LHipSwMax(e,:) - param{speedN,1}.LHipSwMin(e,:);
+            param{speedN,1}.LHipStROM(e,:) = param{speedN,1}.LHipStMax(e,:) - param{speedN,1}.LHipStMin(e,:);
 
-            stat{speedN,1}.LKneeMax(e,:) = max(kinSeg{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeMin(e,:) = min(kinSeg{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeSwMax(e,:) = max(kinSwing{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeSwMin(e,:) = min(kinSwing{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeStMax(e,:) = max(kinStance{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeStMin(e,:) = min(kinStance{speedN,1}.LKnee{e,1});
-            stat{speedN,1}.LKneeROM(e,:) = stat{speedN,1}.LKneeMax(e,:) - stat{speedN,1}.LKneeMin(e,:);
-            stat{speedN,1}.LKneeSwROM(e,:) = stat{speedN,1}.LKneeSwMax(e,:) - stat{speedN,1}.LKneeSwMin(e,:);
-            stat{speedN,1}.LKneeStROM(e,:) = stat{speedN,1}.LKneeStMax(e,:) - stat{speedN,1}.LKneeStMin(e,:);
+            param{speedN,1}.LKneeMax(e,:) = max(kinSeg{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeMin(e,:) = min(kinSeg{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeSwMax(e,:) = max(kinSwing{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeSwMin(e,:) = min(kinSwing{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeStMax(e,:) = max(kinStance{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeStMin(e,:) = min(kinStance{speedN,1}.LKnee{e,1});
+            param{speedN,1}.LKneeROM(e,:) = param{speedN,1}.LKneeMax(e,:) - param{speedN,1}.LKneeMin(e,:);
+            param{speedN,1}.LKneeSwROM(e,:) = param{speedN,1}.LKneeSwMax(e,:) - param{speedN,1}.LKneeSwMin(e,:);
+            param{speedN,1}.LKneeStROM(e,:) = param{speedN,1}.LKneeStMax(e,:) - param{speedN,1}.LKneeStMin(e,:);
             
             if strcmp(type,"healthy")
-            stat{speedN,1}.LArmSwMax(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwMin(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwSwMax(e,:) = max(kinSwing{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwSwMin(e,:) = min(kinSwing{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwStMax(e,:) = max(kinStance{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwStMin(e,:) = min(kinStance{speedN,1}.LArmSw{e,1});
-            stat{speedN,1}.LArmSwROM(e,:) = stat{speedN,1}.LArmSwMax(e,:) - stat{speedN,1}.LArmSwMin(e,:);
-            stat{speedN,1}.LArmSwSwROM(e,:) = stat{speedN,1}.LArmSwSwMax(e,:) - stat{speedN,1}.LArmSwSwMin(e,:);
-            stat{speedN,1}.LArmSwStROM(e,:) = stat{speedN,1}.LArmSwStMax(e,:) - stat{speedN,1}.LArmSwStMin(e,:);
+            param{speedN,1}.LArmSwMax(e,:) = max(kinSeg{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwMin(e,:) = min(kinSeg{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwSwMax(e,:) = max(kinSwing{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwSwMin(e,:) = min(kinSwing{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwStMax(e,:) = max(kinStance{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwStMin(e,:) = min(kinStance{speedN,1}.LArmSw{e,1});
+            param{speedN,1}.LArmSwROM(e,:) = param{speedN,1}.LArmSwMax(e,:) - param{speedN,1}.LArmSwMin(e,:);
+            param{speedN,1}.LArmSwSwROM(e,:) = param{speedN,1}.LArmSwSwMax(e,:) - param{speedN,1}.LArmSwSwMin(e,:);
+            param{speedN,1}.LArmSwStROM(e,:) = param{speedN,1}.LArmSwStMax(e,:) - param{speedN,1}.LArmSwStMin(e,:);
 
-            stat{speedN,1}.LeulerTMax(e,:) = max(kinSeg{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTMin(e,:) = min(kinSeg{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTSwMax(e,:) = max(kinSwing{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTSwMin(e,:) = min(kinSwing{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTStMax(e,:) = max(kinStance{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTStMin(e,:) = min(kinStance{speedN,1}.LeulerT{e,1});
-            stat{speedN,1}.LeulerTROM(e,:) = stat{speedN,1}.LeulerTMax(e,:) - stat{speedN,1}.LeulerTMin(e,:);
-            stat{speedN,1}.LeulerTSwROM(e,:) = stat{speedN,1}.LeulerTSwMax(e,:) - stat{speedN,1}.LeulerTSwMin(e,:);
-            stat{speedN,1}.LeulerTStROM(e,:) = stat{speedN,1}.LeulerTStMax(e,:) - stat{speedN,1}.LeulerTStMin(e,:);
+            param{speedN,1}.LeulerTMax(e,:) = max(kinSeg{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTMin(e,:) = min(kinSeg{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTSwMax(e,:) = max(kinSwing{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTSwMin(e,:) = min(kinSwing{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTStMax(e,:) = max(kinStance{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTStMin(e,:) = min(kinStance{speedN,1}.LeulerT{e,1});
+            param{speedN,1}.LeulerTROM(e,:) = param{speedN,1}.LeulerTMax(e,:) - param{speedN,1}.LeulerTMin(e,:);
+            param{speedN,1}.LeulerTSwROM(e,:) = param{speedN,1}.LeulerTSwMax(e,:) - param{speedN,1}.LeulerTSwMin(e,:);
+            param{speedN,1}.LeulerTStROM(e,:) = param{speedN,1}.LeulerTStMax(e,:) - param{speedN,1}.LeulerTStMin(e,:);
             end
 
-            stat{speedN,1}.L_FPMax(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPMin(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPSwMax(e,:) = max(kinSwing{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPSwMin(e,:) = min(kinSwing{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPStMax(e,:) = max(kinStance{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPStMin(e,:) = min(kinStance{speedN,1}.L_FP{e,1});
-            stat{speedN,1}.L_FPROM(e,:) = stat{speedN,1}.L_FPMax(e,:) - stat{speedN,1}.L_FPMin(e,:);
-            stat{speedN,1}.L_FPSwROM(e,:) = stat{speedN,1}.L_FPSwMax(e,:) - stat{speedN,1}.L_FPSwMin(e,:);
-            stat{speedN,1}.L_FPStROM(e,:) = stat{speedN,1}.L_FPStMax(e,:) - stat{speedN,1}.L_FPStMin(e,:);
+            param{speedN,1}.L_FPMax(e,:) = max(kinSeg{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPMin(e,:) = min(kinSeg{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPSwMax(e,:) = max(kinSwing{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPSwMin(e,:) = min(kinSwing{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPStMax(e,:) = max(kinStance{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPStMin(e,:) = min(kinStance{speedN,1}.L_FP{e,1});
+            param{speedN,1}.L_FPROM(e,:) = param{speedN,1}.L_FPMax(e,:) - param{speedN,1}.L_FPMin(e,:);
+            param{speedN,1}.L_FPSwROM(e,:) = param{speedN,1}.L_FPSwMax(e,:) - param{speedN,1}.L_FPSwMin(e,:);
+            param{speedN,1}.L_FPStROM(e,:) = param{speedN,1}.L_FPStMax(e,:) - param{speedN,1}.L_FPStMin(e,:);
 
-            stat{speedN,1}.LFPAMax(e,:) = max(kinSeg{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPAMin(e,:) = min(kinSeg{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPASwMax(e,:) = max(kinSwing{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPASwMin(e,:) = min(kinSwing{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPAStMax(e,:) = max(kinStance{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPAStMin(e,:) = min(kinStance{speedN,1}.LFPA{e,1});
-            stat{speedN,1}.LFPAROM(e,:) = stat{speedN,1}.LFPAMax(e,:) - stat{speedN,1}.LFPAMin(e,:);
-            stat{speedN,1}.LFPASwROM(e,:) = stat{speedN,1}.LFPASwMax(e,:) - stat{speedN,1}.LFPASwMin(e,:);
-            stat{speedN,1}.LFPAStROM(e,:) = stat{speedN,1}.LFPAStMax(e,:) - stat{speedN,1}.LFPAStMin(e,:);
+            param{speedN,1}.LFPAMax(e,:) = max(kinSeg{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPAMin(e,:) = min(kinSeg{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPASwMax(e,:) = max(kinSwing{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPASwMin(e,:) = min(kinSwing{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPAStMax(e,:) = max(kinStance{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPAStMin(e,:) = min(kinStance{speedN,1}.LFPA{e,1});
+            param{speedN,1}.LFPAROM(e,:) = param{speedN,1}.LFPAMax(e,:) - param{speedN,1}.LFPAMin(e,:);
+            param{speedN,1}.LFPASwROM(e,:) = param{speedN,1}.LFPASwMax(e,:) - param{speedN,1}.LFPASwMin(e,:);
+            param{speedN,1}.LFPAStROM(e,:) = param{speedN,1}.LFPAStMax(e,:) - param{speedN,1}.LFPAStMin(e,:);
         
         end
-        % Plot time-normalized data to check gait events
-            figure(subject); hold on;
-            subplot(2,7,speedN);
-            plot(kinNorm{speedN,1}.LKneeX);
 
-        %% Compute statistics (mean and std of spatiotemporal obtained with Visual3D) 
+        % Add spatiotemporal parameters in the param structure
+        param{speedN,1}.RStanceTime = RStanceTime{speedN};
+        param{speedN,1}.RStepLength = RStepLength{speedN};
+        param{speedN,1}.RStepTime = RStepTime{speedN};
+        param{speedN,1}.RStrideLength = RStrideLength{speedN};
+        param{speedN,1}.RSwingTime = RSwingTime{speedN};
+
+        param{speedN,1}.LStanceTime = LStanceTime{speedN};
+        param{speedN,1}.LStepLength = LStepLength{speedN};
+        param{speedN,1}.LStepTime = LStepTime{speedN};
+        param{speedN,1}.LStrideLength = LStrideLength{speedN};
+        param{speedN,1}.LSwingTime = LSwingTime{speedN};
+
+        param{speedN,1}.CycleTime = CycleTime{speedN};
+        param{speedN,1}.StrideLength = StrideLength{speedN};
+        param{speedN,1}.StrideWidth = StrideWidth{speedN};
+        param{speedN,1}.DSupportMean = DSupportMean{speedN};
+        
+        % Gather parameters from all healthy subjects in one structure
+        paramAll{speedN,subject} = param{speedN,1};
+        % Plot time-normalized data to check gait events
+%             figure(subject); hold on;
+%             subplot(2,7,speedN);
+%             plot(kinNorm{speedN,1}.LKneeX);
+
+        %% Compute paramistics (mean and std of spatiotemporal obtained with Visual3D) 
         % Mean over gait cycles + std + coeff of variation
-        fields = fieldnames(stat{speedN});
-        meanAllKin{speedN,1} = structfun(@mean,stat{speedN},'UniformOutput',false);
-        stdAllKin{speedN,1} = structfun(@(x)(std(x,0,1)),stat{speedN},'UniformOutput',false);
+        fields = fieldnames(param{speedN});
+        meanAllKin{speedN,1} = structfun(@mean,param{speedN},'UniformOutput',false);
+        stdAllKin{speedN,1} = structfun(@(x)(std(x,0,1)),param{speedN},'UniformOutput',false);
         varAllKin{speedN,1} = struct(fields{:});
         for k = 1: size(fields,1)
             varAllKin{speedN,1}.(fields{k}) = stdAllKin{speedN,1}.(fields{k})./meanAllKin{speedN,1}.(fields{k});
@@ -561,12 +582,12 @@ for subject = [1 3:8]%[1 3:8]
 %         close all
     end
     % save individual data
-    save(fileMatlab,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','stat','-append');
+    save(fileMatlab,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','param','-append');
 end
 
 % Save file with data from all subjects (1 file healthy, 1 file stroke)
 if strcmp(type,'healthy')
-    save('D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
+    save('D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable','paramAll');
 elseif strcmp (type,'patient')
     save('D:\StimuLOOP\DataGait\NM_GaitSegmentation\statPatient.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
 end
