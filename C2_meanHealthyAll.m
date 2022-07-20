@@ -45,8 +45,8 @@ for speedN = 1:size(speeds,1)
                 subjectN = ['REF', num2str(subject)];
             end
             folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
-            fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
-            load(fileMatlab);
+            fileMatlabInd = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
+            load(fileMatlabInd);
             storeMean{subject} = meanSubject;
         end
         fields = fieldnames(paramAll{speedN,subject});
