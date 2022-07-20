@@ -9,7 +9,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'patient'; 
+type = 'healthy'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -23,7 +23,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = 6%[1 3:7]  %[1 3:7]
+for subject = 3 %[1 3:7]  %[1 3:7]
     if strcmp(type,'healthy')
         if subject < 10
             subjectN = ['REF0', num2str(subject)];
@@ -76,6 +76,14 @@ for subject = 6%[1 3:7]  %[1 3:7]
         ff = btkGetFirstFrame(c3d);
         p = btkGetMetaData(c3d, 'SUBJECTS', 'NAMES');
         subjectName = p.info.values;
+
+        % Correct for repeated events for REF03
+        if strcmp(type,'healthy') && subject == 3 && speedN == 2
+            evts.Left_Foot_Off = unique(evts.Left_Foot_Off);
+            evts.Left_Foot_Strike = unique(evts.Left_Foot_Strike);
+            evts.Right_Foot_Off = unique(evts.Right_Foot_Off);
+            evts.Right_Foot_Strike = unique(evts.Right_Foot_Strike);
+        end
 
         % Transform from events in s to events in frame number
         events{speedN,1}.LOff = round(evts.Left_Foot_Off*freq - ff);
