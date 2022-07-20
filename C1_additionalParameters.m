@@ -12,7 +12,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'healthy'; 
+type = 'patient'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -26,7 +26,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:7]%[1 3:8]
+for subject = [1 3:8]%[1 3:8]
     clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable assist paramAll
     % Load data
     if strcmp(type,'healthy')
@@ -36,7 +36,8 @@ for subject = [1 3:7]%[1 3:8]
             subjectN = ['REF', num2str(subject)];
         end
         folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
-        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
+        fileMatlab = [folder,'MatlabData\',subjectN,'_parameters']; % matlab file from visual3D
+        fileMatlabOut = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
     elseif strcmp(type,'patient')
         if subject == 4
             subjectN = [day{subject},'_S0',num2str(subject),'_T2'];
@@ -45,6 +46,7 @@ for subject = [1 3:7]%[1 3:8]
         end
         folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
         fileMatlab = [folder,'MatlabData\',subjectN,'_parameters'];
+        fileMatlabOut = fileMatlab;
     end
     load(fileMatlab);
     
@@ -584,7 +586,7 @@ for subject = [1 3:7]%[1 3:8]
 %         close all
     end
     % save individual data
-    save(fileMatlab,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','param','-append');
+    save(fileMatlabOut,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','param','-append');
 end
 
 % Save file with data from all subjects (1 file healthy, 1 file stroke)
