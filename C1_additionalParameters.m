@@ -12,7 +12,7 @@ clc
 addpath('btk');
 addpath('ChrisFunctions');
 % Choose between healthy and patient (different file characteristics)
-type = 'patient'; 
+type = 'healthy'; 
 
 % Define parameters/ file characteristics
 if strcmp(type,'healthy')
@@ -26,7 +26,7 @@ elseif strcmp(type,'patient')
     suffixe = '_MoCgapfilled';
 end
 
-for subject = [1 3:8]%[1 3:8]
+for subject = [1 3:7]%[1 3:8]
     clearvars -except type day speeds suffixe subject RKinTable RSTTable LKinTable LSTTable globalSTTable assist paramAll
     % Load data
     if strcmp(type,'healthy')
@@ -36,8 +36,8 @@ for subject = [1 3:8]%[1 3:8]
             subjectN = ['REF', num2str(subject)];
         end
         folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
-        fileMatlab = [folder,'MatlabData\',subjectN,'_parameters']; % matlab file from visual3D
-        fileMatlabOut = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
+        fileMatlab = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters']; %[folder,'MatlabData\',subjectN,'_parameters']; % matlab file from visual3D
+        fileMatlabOut = fileMatlab; %[folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
     elseif strcmp(type,'patient')
         if subject == 4
             subjectN = [day{subject},'_S0',num2str(subject),'_T2'];
@@ -492,7 +492,10 @@ for subject = [1 3:8]%[1 3:8]
         param{speedN,1}.DSupportMean = DSupportMean{speedN};
         
         % Gather parameters from all healthy subjects in one structure
+        if strcmp(type,'healthy')
         paramAll{speedN,subject} = param{speedN,1};
+        end
+
         % Plot time-normalized data to check gait events
 %             figure(subject); hold on;
 %             subplot(2,7,speedN);
@@ -501,97 +504,58 @@ for subject = [1 3:8]%[1 3:8]
         %% Compute paramistics (mean and std of spatiotemporal obtained with Visual3D) 
         % Mean over gait cycles + std + coeff of variation
         fields = fieldnames(param{speedN});
-        meanAllKin{speedN,1} = structfun(@mean,param{speedN},'UniformOutput',false);
-        stdAllKin{speedN,1} = structfun(@(x)(std(x,0,1)),param{speedN},'UniformOutput',false);
-        varAllKin{speedN,1} = struct(fields{:});
+        meanSubject{speedN,1} = structfun(@mean,param{speedN},'UniformOutput',false);
+        stdSubject{speedN,1} = structfun(@(x)(std(x,0,1)),param{speedN},'UniformOutput',false);
+        varSubject{speedN,1} = struct(fields{:});
         for k = 1: size(fields,1)
-            varAllKin{speedN,1}.(fields{k}) = stdAllKin{speedN,1}.(fields{k})./meanAllKin{speedN,1}.(fields{k});
+            varSubject{speedN,1}.(fields{k}) = stdSubject{speedN,1}.(fields{k})./meanSubject{speedN,1}.(fields{k});
         end
-
-        varAllST{speedN,1}.RStanceTime = RStanceTimeStd{speedN}/RStanceTimeMean{speedN};
-        varAllST{speedN,1}.RStepLength = RStepLengthStd{speedN}/RStepLengthMean{speedN};
-        varAllST{speedN,1}.RStepTime = RStepTimeStd{speedN}/RStepTimeMean{speedN};
-        varAllST{speedN,1}.RStrideLength = RStrideLengthStd{speedN}/RStrideLengthMean{speedN};
-        varAllST{speedN,1}.RSwingTime = RSwingTimeStd{speedN}/RSwingTimeMean{speedN};
-
-        varAllST{speedN,1}.LStanceTime = LStanceTimeStd{speedN}/LStanceTimeMean{speedN};
-        varAllST{speedN,1}.LStepLength = LStepLengthStd{speedN}/LStepLengthMean{speedN};
-        varAllST{speedN,1}.LStepTime = LStepTimeStd{speedN}/LStepTimeMean{speedN};
-        varAllST{speedN,1}.LStrideLength = LStrideLengthStd{speedN}/LStrideLengthMean{speedN};
-        varAllST{speedN,1}.LSwingTime = LSwingTimeStd{speedN}/LSwingTimeMean{speedN};
-
-        varAllST{speedN,1}.CycleTime = CycleTimeStd{speedN}/CycleTimeMean{speedN};
-        varAllST{speedN,1}.StrideLength = StrideLengthStd{speedN}/StrideLengthMean{speedN};
-        varAllST{speedN,1}.StrideWidth = StrideWidthStd{speedN}/StrideWidthMean{speedN};
-        varAllST{speedN,1}.DSupport = DSupportStd{speedN}/DSupportMean{speedN};
+        meanSubject{speedN,1}.DSupport = DSupportMean{speedN};
+        stdSubject{speedN,1}.DSupport = DSupportStd{speedN};
+        varSubject{speedN,1}.DSupport = DSupportStd{speedN}/DSupportMean{speedN};
         
         %% Save in tables
         namesRow = {'Mean','Std','Coeff var'};
 
         % Kinetics/kinematics
-        RightKinM = [];
-        LeftKinM = [];
+        RightM = [];
+        LeftM = [];
         counterR = 1;
         counterL = 1;
         for k = 1:size(fields,1)
-            dim = size(stdAllKin{speedN}.(fields{k}),2);
+            dim = size(stdSubject{speedN}.(fields{k}),2);
             if fields{k}(1) == 'R' % Right side
-                RightKinM = [RightKinM [meanAllKin{speedN}.(fields{k}); stdAllKin{speedN}.(fields{k}); varAllKin{speedN}.(fields{k})]];
+                RightM = [RightM [meanSubject{speedN}.(fields{k}); stdSubject{speedN}.(fields{k}); varSubject{speedN}.(fields{k})]];
                 if dim == 1
-                    RightKinN{counterR} = fields{k};
+                    RightN{counterR} = fields{k};
                 elseif dim == 3
-                    RightKinN(1,counterR:counterR+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
+                    RightN(1,counterR:counterR+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
                 end
                 counterR = counterR + dim;
             elseif fields{k}(1) == 'L' % Left side
-                LeftKinM = [LeftKinM [meanAllKin{speedN}.(fields{k}); stdAllKin{speedN}.(fields{k}); varAllKin{speedN}.(fields{k})]];
+                LeftM = [LeftM [meanSubject{speedN}.(fields{k}); stdSubject{speedN}.(fields{k}); varSubject{speedN}.(fields{k})]];
                 if dim == 1
-                    LeftKinN{counterL} = fields{k};
+                    LeftN{counterL} = fields{k};
                 elseif dim == 3
-                    LeftKinN(1,counterL:counterL+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
+                    LeftN(1,counterL:counterL+2) = {[fields{k},' X'],[fields{k},' Y'],[fields{k},' Z']};
                 end
                 counterL = counterL + dim;
             end
         end
 
-        RKinTable{subject,speedN} = array2table(RightKinM,'RowNames',namesRow,'VariableNames',RightKinN);
-        LKinTable{subject,speedN} = array2table(LeftKinM,'RowNames',namesRow,'VariableNames',LeftKinN);
-        
-        % Spatio Temporal
-        % Right
-        RightSTempM = [RStanceTimeMean{speedN} RStepLengthMean{speedN} RStepTimeMean{speedN} RStrideLengthMean{speedN} RSwingTimeMean{speedN};...
-                        RStanceTimeStd{speedN} RStepLengthStd{speedN} RStepTimeStd{speedN} RStrideLengthStd{speedN} RSwingTimeStd{speedN};...
-                        varAllST{speedN,1}.RStanceTime varAllST{speedN,1}.RStepLength varAllST{speedN,1}.RStepTime varAllST{speedN,1}.RStrideLength varAllST{speedN,1}.RSwingTime];
-        RightSTempN = {'RStanceTime', 'RStepLength', 'RStepTime', 'RStrideLength', 'RSwingTime'};
-
-        
-        RSTTable{subject,speedN} = array2table(RightSTempM,'RowNames',namesRow,'VariableNames',RightSTempN);
-
-        %Left
-        LeftSTempM = [LStanceTimeMean{speedN} LStepLengthMean{speedN} LStepTimeMean{speedN} LStrideLengthMean{speedN} LSwingTimeMean{speedN};...
-                        LStanceTimeStd{speedN} LStepLengthStd{speedN} LStepTimeStd{speedN} LStrideLengthStd{speedN} LSwingTimeStd{speedN};...
-                        varAllST{speedN,1}.LStanceTime varAllST{speedN,1}.LStepLength varAllST{speedN,1}.LStepTime varAllST{speedN,1}.LStrideLength varAllST{speedN,1}.LSwingTime];
-        LeftSTempN = {'LStanceTime', 'LStepLength', 'LStepTime', 'LStrideLength', 'LSwingTime'};
-
-        LSTTable{subject,speedN} = array2table(LeftSTempM,'RowNames',namesRow,'VariableNames',LeftSTempN);
-        
-        % Global
-        globalM = [CycleTimeMean{speedN} StrideLengthMean{speedN} StrideWidthMean{speedN} DSupportMean{speedN};...
-                CycleTimeStd{speedN} StrideLengthStd{speedN} StrideWidthStd{speedN} DSupportStd{speedN};...
-                varAllST{speedN,1}.CycleTime varAllST{speedN,1}.StrideLength varAllST{speedN,1}.StrideWidth varAllST{speedN,1}.DSupport];
-        globalN ={'CycleTime', 'StrideLength', 'StrideWidth', 'DSupport'};
-
-        globalSTTable{subject,speedN} = array2table(globalM,'RowNames',namesRow,'VariableNames',globalN);
+        RTable{subject,speedN} = array2table(RightM,'RowNames',namesRow,'VariableNames',RightN);
+        LTable{subject,speedN} = array2table(LeftM,'RowNames',namesRow,'VariableNames',LeftN);
 
 %         close all
     end
     % save individual data
-    save(fileMatlabOut,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','param','-append');
+    clear stat
+    save(fileMatlabOut,'kinSeg','kinSwing','kinStance','kinNorm','eulerT','RArmSw','LArmSw','RFPA','LFPA','param','meanSubject','stdSubject','-append');
 end
 
 % Save file with data from all subjects (1 file healthy, 1 file stroke)
 if strcmp(type,'healthy')
-    save('D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable','paramAll');
+    save('D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat','RTable','LTable','paramAll');
 elseif strcmp (type,'patient')
-    save('D:\StimuLOOP\DataGait\NM_GaitSegmentation\statPatient.mat','RKinTable','RSTTable','LKinTable','LSTTable','globalSTTable');
+    save('D:\StimuLOOP\DataGait\NM_GaitSegmentation\statPatient.mat','RTable','LTable');
 end
