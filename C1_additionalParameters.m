@@ -95,8 +95,10 @@ for subject = [1 3:7]%[1 3:8]
         % Trunk motions (not available for stroke patients)
         if strcmp(type,'healthy')
             % define trunk frame
-            Ztrunk = markers.CLAV - markers.TV10;
+            Ztrunk = (markers.CLAV - markers.TV10);
+            Ztrunk = Ztrunk./vecnorm(Ztrunk,2,2);
             shoulVec = markers.RSHO - markers.LSHO;
+            shoulVec = shoulVec./vecnorm(shoulVec,2,2);
             Xtrunk = cross(shoulVec,Ztrunk);
             Ytrunk = cross(Ztrunk, Xtrunk);
 
@@ -105,10 +107,10 @@ for subject = [1 3:7]%[1 3:8]
                 R(1,1) = dot(Xtrunk(i,:),X); R(1,2) = dot(Xtrunk(i,:),Y);  R(1,3) = dot(Xtrunk(i,:),Z);
                 R(2,1) = dot(Ytrunk(i,:),X); R(2,2) = dot(Ytrunk(i,:),Y);  R(2,3) = dot(Ytrunk(i,:),Z);
                 R(3,1) = dot(Ztrunk(i,:),X); R(3,2) = dot(Ztrunk(i,:),Y);  R(3,3) = dot(Ztrunk(i,:),Z);
-            end
 
-            % Compute Euler angles between the lab and the trunk frames
-            eulerT{speedN,1}(i,:) = rotm2eul(R);
+                % Compute Euler angles between the lab and the trunk frames
+                eulerT{speedN,1}(i,:) = rotm2eul(R)*180/pi;
+            end
 
             % Arm swing
             centerPoint = (markers.RASI + markers.LASI)./2;
