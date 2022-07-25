@@ -32,8 +32,8 @@ for speedN = 1:size(speeds,1)
     subject = 1;
     healthy = paramAll{speedN,subject};
     folder = ['D:\StimuLOOP\DataGait\NM_Reference\ReferenceData\Data\REF01\3_C3D_Files\'];
-    fileMatlab = [folder,'MatlabData\',day{subject},'_REF01_parameters'];
-    load(fileMatlab);
+    fileMatlabInd = [folder,'MatlabData\',day{subject},'_REF01_parameters'];
+    load(fileMatlabInd);
     storeMean{1} = meanSubject;
     meanAll = meanSubject{speedN};
 
@@ -70,8 +70,8 @@ for speedN = 1:size(speeds,1)
     end
 
     %% Mean of participants' mean
-    meanHealthy{speedN,1} = structfun(@mean,meanAll,'UniformOutput',false);
-    stdHealthy{speedN,1} = structfun(@(x)(std(x,0,1)),meanAll,'UniformOutput',false);
+    meanHealthy{speedN,1} = structfun(@(x)(mean(x,1,'omitnan')),meanAll,'UniformOutput',false);
+    stdHealthy{speedN,1} = structfun(@(x)(std(x,0,1,'omitnan')),meanAll,'UniformOutput',false);
 
     %% Bar plots
     if plotFigures
