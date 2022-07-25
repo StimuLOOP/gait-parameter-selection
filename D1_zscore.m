@@ -18,7 +18,7 @@ suffixe = '_MoCgapfilled';
 
 velH = [0.11 0.19 0.28 0.36 0.42 0.53 0.61 0.69 0.78 0.86 0.94 1.03 1.11]; % velocities healthy participants
 
-subject = 1;
+subject = 5;
 
 % Load data
 % Mean healthy
@@ -33,6 +33,9 @@ end
 folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
 filePatient = [folder,'MatlabData\',subjectN,'_parameters'];
 load(filePatient);
+
+dimName = {' /X','Y','Z'};
+
 for speedN = 1:size(speeds,2)
     if velP(subject,speedN) == 0
         % do nothing
@@ -43,8 +46,23 @@ for speedN = 1:size(speeds,2)
         fields = fieldnames(param{speedN});
         for k = 1:size(fields,1)
             s = size(meanSubject{speedN}.(fields{k}),2);
-            zsc(k,1:s) = (meanSubject{speedN}.(fields{k})-meanHealthy{indOfMin}.(fields{k}))./stdHealthy{indOfMin}.(fields{k});
-            zsc(k,s:3) = NaN; % put nan when there is only one dimension
+            zsc{speedN}(k,1:s) = (meanSubject{speedN}.(fields{k})-meanHealthy{indOfMin}.(fields{k}))./stdHealthy{indOfMin}.(fields{k});
+            if s<3
+            zsc{speedN}(k,s+1:3) = NaN; % put nan when there is only one dimension
+            end
         end
+        % Find 4 max values
+        % find in each column
+        [M{speedN},indOfMax] = maxk(zsc{speedN},4);
+        % gather in one column to find the 4 max of the whole zscore matrix
+        M2 = []; ind = [];
+        for i = 1:3
+            M2 = [M2;M{speedN}(:,i)];
+            ind = [ind; indOfMax(:,i)];
+        end
+        [maxZscore,indOfMaxBis] = maxk(M2,4);
+        numImpParam = ind(indOfMaxBis);
+        dim = fix((indOfMaxBis-1)/4)+1;
+        impParam(:,2*(speedN-1)+1:2+2*(speedN-1)) = [fields(numImpParam) dimName(dim)'];
     end
 end
