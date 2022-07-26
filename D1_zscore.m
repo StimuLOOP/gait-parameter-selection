@@ -1,7 +1,7 @@
 % ---------------------------
 % Selection algorithm: z-score
 % Match patients and healthy participants speeds
-% Take all discrete gait mtrics as input
+% Take all discrete gait metrics as input
 % Mathilde 20.07.2022
 % ---------------------------
 
@@ -19,68 +19,83 @@ if strcmp(type,'patient')
     assist ={'_NH_NS' '_NRH_NS1' '';'' '' ''; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'; '_BH_NS' '_BH_NS' '_BH_NS'};
     suffixe = '_MoCgapfilled';
 
-elseif strcmp(type,'heathy')
+elseif strcmp(type,'healthy')
     day = {'200113';'200302';'200306';'200306';'200306';'200306';'200617'};
     speeds = {'0.11'; '0.19';'0.28';'0.36';'0.42';'0.53';'0.61';'0.69';'0.78';'0.86';'0.94';'1.03';'1.11'};
 end
 velH = [0.11 0.19 0.28 0.36 0.42 0.53 0.61 0.69 0.78 0.86 0.94 1.03 1.11]; % velocities healthy participants
 
-subject = 5;
-
-% Load data
-% Mean healthy
-fileHealthy = 'D:\StimuLOOP\DataGait\NM_Reference\statHealthy.mat';
-load(fileHealthy);
-
-if strcmp(type,'patient')
-    % Patient
-    if subject == 4
-        subjectN = [day{subject},'_S0',num2str(subject),'_T2'];
-    else
-        subjectN = [day{subject},'_S0',num2str(subject)];
-    end
-    folder = ['D:\StimuLOOP\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
-    filePatient = [folder,'MatlabData\',subjectN,'_parameters'];
-    load(filePatient);
-
-elseif strcmp(type,'healthy')
-    folder = ['D:\StimuLOOP\DataGait\NM_Reference\',subjectN,'\04_Visual3D\'];
-    fileHealthy = [folder,'MatlabData',day{subject},'_',subjectN,'_parameters'];
+maxM = 0;
+for subject = [1 3:8]
+    % Load data
+    % Mean healthy
+    fileHealthy = 'C:\Users\mlestoille\Documents\DataGait\NM_Reference\statHealthy.mat';
     load(fileHealthy);
-end
-dimName = {' /X','Y','Z'};
 
-for speedN = 1:size(speeds,2)
-    if velP(subject,speedN) == 0
-        % do nothing
-    else
-        % find the corresponding velocity of healthy participants (closest one)
-        if strcmp(type,'patient')
-            [minDistance,indOfMin] = min(abs(velP(subject,speedN)-velH));
-        elseif strcmp(type,'healthy')
-            indOfMin = speedN;
+    if strcmp(type,'patient')
+        % Patient
+        if subject == 4
+            subjectN = [day{subject},'_S0',num2str(subject),'_T2'];
+        else
+            subjectN = [day{subject},'_S0',num2str(subject)];
         end
-        % compute z-score for all metrics
-        fields = fieldnames(param{speedN});
-        for k = 1:size(fields,1)
-            s = size(meanSubject{speedN}.(fields{k}),2);
-            zsc{speedN}(k,1:s) = (meanSubject{speedN}.(fields{k})-meanHealthy{indOfMin}.(fields{k}))./stdHealthy{indOfMin}.(fields{k});
-            if s<3
-                zsc{speedN}(k,s+1:3) = NaN; % put nan when there is only one dimension
+        folder = ['C:\Users\mlestoille\Documents\DataGait\NM_GaitSegmentation\',subjectN,'\04_Visual3D\'];
+        filePatient = [folder,'MatlabData\',subjectN,'_parameters'];
+        load(filePatient);
+        speedSize = size(speeds,2);
+
+    elseif strcmp(type,'healthy')
+        velP(subject,:) = velH;
+        subjectN = ['REF0',num2str(subject)];
+        folder = ['C:\Users\mlestoille\Documents\DataGait\NM_Reference\ReferenceData\Data\',subjectN,'\3_C3D_Files\'];
+        fileHealthy = [folder,'MatlabData\',day{subject},'_',subjectN,'_parameters'];
+        load(fileHealthy);
+        speedSize = size(speeds,1);
+    end
+    dimName = {' /X','Y','Z'};
+
+    for speedN = 1:speedSize
+        if velP(subject,speedN) == 0
+            % do nothing
+        else
+            % find the corresponding velocity of healthy participants (closest one)
+            if strcmp(type,'patient')
+                [minDistance,indOfMin] = min(abs(velP(subject,speedN)-velH));
+            elseif strcmp(type,'healthy')
+                indOfMin = speedN;
             end
+            % compute z-score for all metrics
+            fields = fieldnames(param{speedN});
+            for k = 1:size(fields,1)
+                s = size(meanSubject{speedN}.(fields{k}),2);
+                zsc(k,1:s) = (meanSubject{speedN}.(fields{k})-meanHealthy{indOfMin}.(fields{k}))./stdHealthy{indOfMin}.(fields{k});
+                if s<3
+                    zsc(k,s+1:3) = NaN; % put nan when there is only one dimension
+                end
+            end
+            % Find 4 max values
+            % find in each column
+            [M{speedN,subject},indOfMax] = maxk(zsc,4);
+            % gather in one column to find the 4 max of the whole zscore matrix
+            M2 = []; ind = [];
+            for i = 1:3
+                M2 = [M2;M{speedN,subject}(:,i)];
+                ind = [ind; indOfMax(:,i)];
+            end
+            [maxZscore,indOfMaxBis] = maxk(M2,4);
+            numImpParam = ind(indOfMaxBis);
+            dim = fix((indOfMaxBis-1)/4)+1;
+            impParam{subject}(:,2*(speedN-1)+1:2+2*(speedN-1)) = [fields(numImpParam) dimName(dim)'];
+
+            % find max zscore over all healthy participants
+            if strcmp(type,'healthy')
+                if maxM < max(M2)
+                    maxM = max(M2);
+                end
+            end
+            
+            % store all values in single array
+            zscore{speedN,subject} = zsc; 
         end
-        % Find 4 max values
-        % find in each column
-        [M{speedN},indOfMax] = maxk(zsc{speedN},4);
-        % gather in one column to find the 4 max of the whole zscore matrix
-        M2 = []; ind = [];
-        for i = 1:3
-            M2 = [M2;M{speedN}(:,i)];
-            ind = [ind; indOfMax(:,i)];
-        end
-        [maxZscore,indOfMaxBis] = maxk(M2,4);
-        numImpParam = ind(indOfMaxBis);
-        dim = fix((indOfMaxBis-1)/4)+1;
-        impParam(:,2*(speedN-1)+1:2+2*(speedN-1)) = [fields(numImpParam) dimName(dim)'];
     end
 end
