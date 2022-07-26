@@ -27,7 +27,7 @@ velH = [0.11 0.19 0.28 0.36 0.42 0.53 0.61 0.69 0.78 0.86 0.94 1.03 1.11]; % vel
 
 maxM = 0;
 for subject = [1 3:8]
-    % Load data
+    %% Load data
     % Mean healthy
     fileHealthy = 'C:\Users\mlestoille\Documents\DataGait\NM_Reference\statHealthy.mat';
     load(fileHealthy);
@@ -54,6 +54,7 @@ for subject = [1 3:8]
     end
     dimName = {' /X','Y','Z'};
 
+    %% Zscore and selection
     for speedN = 1:speedSize
         if velP(subject,speedN) == 0
             % do nothing
